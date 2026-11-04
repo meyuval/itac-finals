@@ -12,7 +12,9 @@ on:
         default: ""
 
 permissions:
-  contents: write # push the published report to the gh-pages branch
+  contents: write # push the report history to the gh-pages branch
+  pages: write # deploy the report site to GitHub Pages from this workflow
+  id-token: write # required by actions/deploy-pages
 
 # Qualifying runs must never be cancelled by a later push: queue them instead.
 concurrency:
@@ -23,6 +25,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Shows the public report of this run as the deployment link on the Playwright run page.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}runs/${{ github.run_number }}/
     env:
       CI: "true"
       STONEWAKE_APP_URL: ${{ vars.STONEWAKE_APP_URL || 'https://app.stonewake.ai' }}
@@ -93,6 +99,19 @@ jobs:
           keep_files: false
           force_orphan: true
           commit_message: "report: run ${{ github.run_number }} (${{ github.sha }})"
+
+      # Deploy the same site from this workflow, so the Pages link belongs to the Playwright run
+      # (no separate "pages build and deployment" workflow). gh-pages remains the history store.
+      - name: Upload the report site for GitHub Pages
+        if: ${{ !cancelled() }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy the report site to GitHub Pages
+        id: deployment
+        if: ${{ !cancelled() }}
+        uses: actions/deploy-pages@v4
 
       # Puts the public report links on the run page, so a reader can go from the run to its report.
       - name: Link the public report in the run summary

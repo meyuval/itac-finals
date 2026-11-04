@@ -67,6 +67,7 @@ test.describe('UI: authentication', () => {
   test('sign-out ends the session and protected routes redirect again', async ({ app, config }) => {
     await app.login.goto();
     await app.login.signIn(config.email, config.password);
+    await expect(app.page).toHaveURL(/\/$/);
     await expect(app.shell.pageHeading).toHaveText('Deal Book');
 
     await app.shell.signOut();

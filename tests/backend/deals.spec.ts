@@ -76,6 +76,7 @@ test.describe('API: deals (Deal Book)', () => {
     expect(searched.status, `q=${term}`).toBe(200);
     expect(searched.body.items.length, `q=${term} finds at least the sampled deal`).toBeGreaterThan(0);
     expect(searched.body.total).toBeLessThanOrEqual(unfiltered.body.total);
+    expect(searched.body.items.map((deal) => deal.deal_id), `q=${term} keeps the sampled deal`).toContain(sample.deal_id);
     const wholeWord = new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRegExp(term)}($|[^\\p{L}\\p{N}])`, 'iu');
     for (const deal of searched.body.items) {
       const match = deal.q_matched?.find((entry) => entry.term.toLowerCase() === term.toLowerCase());

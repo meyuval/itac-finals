@@ -8,7 +8,8 @@ test.describe('API: portfolio (monitored book)', () => {
     const page = await api.portfolio({ limit: 2 });
     expect(page.status).toBe(200);
     expect(Array.isArray(page.body.items)).toBe(true);
-    expect(page.body.items.length).toBeLessThanOrEqual(2);
+    expect(page.body.total, 'the book must hold at least one exposure').toBeGreaterThan(0);
+    expect(page.body.items).toHaveLength(Math.min(2, page.body.total));
     expect(page.body.limit).toBe(2);
     expect(page.body.offset).toBe(0);
     expect(Number.isInteger(page.body.total)).toBe(true);
@@ -45,14 +46,11 @@ test.describe('API: portfolio (monitored book)', () => {
     expect(both.status).toBe(200);
     expect(both.body.total).toBe(first.body.total);
     expect(second.body.offset).toBe(1);
-    if (first.body.total >= 2) {
-      expect(first.body.items).toHaveLength(1);
-      expect(second.body.items).toHaveLength(1);
-      expect(first.body.items[0].id).not.toBe(second.body.items[0].id);
-      expect(both.body.items.map((item) => item.id)).toEqual([first.body.items[0].id, second.body.items[0].id]);
-    } else {
-      expect(both.body.items.length).toBe(first.body.total);
-    }
+    expect(first.body.total, 'the book needs at least two rows to test paging').toBeGreaterThanOrEqual(2);
+    expect(first.body.items).toHaveLength(1);
+    expect(second.body.items).toHaveLength(1);
+    expect(first.body.items[0].id).not.toBe(second.body.items[0].id);
+    expect(both.body.items.map((item) => item.id)).toEqual([first.body.items[0].id, second.body.items[0].id]);
   });
 
   // inherited: api 6 portfolio summary
@@ -91,9 +89,17 @@ test.describe('API: portfolio (monitored book)', () => {
       expect(typeof item.cause.available).toBe('boolean');
     }
 
-    const since = '2026-10-01T00:00:00Z';
+    // The cutoff is taken from the feed itself, so the filter must drop the older rows: a server that
+    // ignored `since` would return the whole feed and fail the exact total below.
+    expect(feed.body.total, 'the whole feed fits in one page').toBeLessThanOrEqual(50);
+    const sorted = [...times].sort((a, b) => a - b);
+    const since = new Date(sorted[Math.floor(sorted.length / 2)]).toISOString();
+    const expected = times.filter((t) => t >= Date.parse(since)).length;
+    expect(expected).toBeGreaterThan(0);
+    expect(expected, 'the cutoff must exclude some rows').toBeLessThan(feed.body.total);
     const filtered = await api.portfolioTransitions({ limit: 50, since });
     expect(filtered.status).toBe(200);
+    expect(filtered.body.total, `transitions since ${since}`).toBe(expected);
     for (const item of filtered.body.items) {
       expect(Date.parse(item.occurred_at), `transition ${item.id}`).toBeGreaterThanOrEqual(Date.parse(since));
     }
