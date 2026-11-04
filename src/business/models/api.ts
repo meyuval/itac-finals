@@ -116,7 +116,9 @@ export type DealDocument = (typeof DEAL_DOCUMENTS)[number];
 /** `/v1/nodes/{id}/ownership-chain`: paths of hops from the root company to its owners. */
 export interface OwnershipChain {
   root_id: number;
-  nodes: unknown;
+  nodes: Array<{ node_id: number; label: string }>;
+  params: { threshold: number; max_depth: number };
+  coverage: { verdict: string; wording: string };
   paths: Array<{
     hops: Array<{ owner_id: number; witnesses: OwnershipWitness[] }>;
     /** Why the walk stopped (OwnershipTerminalOut); set on every path. */
@@ -132,7 +134,6 @@ export interface OwnershipWitness {
 }
 
 export interface Node {
-  id: number;
   /** V1NodeDetailOut keys the id as `node_id` (live and in openapi.json). */
   node_id: number;
   node_type: string;
