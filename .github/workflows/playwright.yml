@@ -93,3 +93,21 @@ jobs:
           keep_files: false
           force_orphan: true
           commit_message: "report: run ${{ github.run_number }} (${{ github.sha }})"
+
+      # Puts the public report links on the run page, so a reader can go from the run to its report.
+      - name: Link the public report in the run summary
+        if: ${{ !cancelled() }}
+        env:
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          RUN_CONCLUSION: ${{ steps.tests.outcome }}
+        run: |
+          {
+            echo "## Playwright run ${{ github.run_number }}: ${RUN_CONCLUSION}"
+            echo ""
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo "- Report for this run (GitHub Pages): ${PAGES_URL}/runs/${{ github.run_number }}/"
+            echo "- All runs: ${PAGES_URL}/"
+            echo "- HTML report artifact: \`playwright-report-run-${{ github.run_number }}\` (below)"
+            echo ""
+            echo "GitHub Pages can take a minute or two to serve a new run after this job ends."
+          } >> "$GITHUB_STEP_SUMMARY"
