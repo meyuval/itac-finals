@@ -1,6 +1,8 @@
 # Five consecutive green runs (certification evidence)
 
-Status: **CERTIFIED on commit `e0fd863f495ed8602ec502c84f0471d7558b70d7`** (GitHub Actions runs #8–#12, 4 Nov 2026 17:08–17:16 UTC = 19:08–19:16 Asia/Jerusalem). Data below was read from the Actions API and each run's published `run.json`; nothing is inferred. If code changes after this commit, a new five-run sequence is required and this file is updated.
+Status: **SUPERSEDED, re-certification pending.** A five-green sequence was completed on `e0fd863` (below, 24 tests) and the code was then extended to 50 tests at `a8f194f` (frozen 19:39). At 19:41 the declared credentials changed to the Finalist 5 account, so a fresh sequence of five runs on `a8f194f` after the secret change is required; run #13 (push-triggered, old credentials) does not count.
+
+Previous certification: **commit `e0fd863f495ed8602ec502c84f0471d7558b70d7`** (GitHub Actions runs #8–#12, 4 Nov 2026 17:08–17:16 UTC = 19:08–19:16 Asia/Jerusalem). Data below was read from the Actions API and each run's published `run.json`; nothing is inferred. If code changes after this commit, a new five-run sequence is required and this file is updated.
 
 Scope of each qualifying run: full suite (`npx playwright test`), both projects (`api`: 9 tests, `chromium`: 15 tests),
 24 tests, `retries: 0`, 2 workers, ubuntu-latest, Node 22, Playwright 1.64.1, triggered by push or `workflow_dispatch`.

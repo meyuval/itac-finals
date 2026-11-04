@@ -17,4 +17,6 @@ playwright/.auth/
 .playwright-mcp/
 stonewake-final-repo/
 .probe/
+# Throwaway DOM probes: never commit them (testDir would run them in CI and publish their output)
+tests/**/_probe*
 .claude/settings.local.json

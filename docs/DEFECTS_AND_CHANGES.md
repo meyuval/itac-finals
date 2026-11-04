@@ -87,6 +87,8 @@ Result: 20 of 20 inherited tests mapped, none dropped, no assertion weakened; 3 
 | P-1 | Portfolio tile test ids are inconsistent: `tile-red`, `tile-amber`, `tile-green`, `tile-insufficient` but `tile-not_assessed` | DOM in trace of baseline run; API status enum uses `not_assessed` | Filed in SpiraTest as **IN:82** (product "Yuval Menashe", severity 4 - Low) at ~19:02 on 4 Nov 2026 |
 | P-2 | "EDD Dossiers" and "Signals" pages exist (`/dossiers`, `/signals`) but have no sidebar entry although the 4 Nov changelog lists them | baseline snapshot of ui 6; live script 19:05 (sidebar link list + page titles); test `navigation.spec.ts` | Filed in SpiraTest as **IN:83** (severity 3 - Medium) at ~19:08; organizers may close as intentional |
 | P-3 | Portfolio row navigation appends `?from=portfolio` to the institution URL | run `phase2-run1` | Informational, not a defect |
+| P-4 | `/org/api-keys` answers 401 with two different messages and an undocumented `detail` field, contradicting the documented uniform-refusal contract | curl and API explorer, Jam.dev recording | Filed by the parallel session as **IN:81** (Medium) at 18:44; planned test API-AUTH-09 left out of the certified suite rather than hidden |
+| P-5 | Unscored Portfolio Score cells are visually empty ("Not scored" only in aria-label/title); deal names use ", " in the UI vs " - " in the API | parallel session's live checks | Observations, not filed (cosmetic / unspecified) |
 
 ## 5. Residual risks and known limitations
 

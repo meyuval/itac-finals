@@ -13,7 +13,7 @@
 The inherited Playwright + TypeScript project had 20 tests in two flat files; 10 failed deterministically because of
 test defects (wrong path, auth scheme, field name, expected value, selectors), credentials were committed, and there was
 no structure, no configuration injection and no public report. This plan covers the stabilised and refactored suite:
-24 tests (20 inherited scenarios preserved, 4 added), two Playwright projects (`api`, `chromium`), retries 0, secrets
+50 tests (20 inherited scenarios preserved, 30 added; `api` 24, `chromium` 26), two Playwright projects (`api`, `chromium`), retries 0, secrets
 injected from the environment, GitHub Actions with a public GitHub Pages report, and the evidence rules that make
 "green" mean something. Evidence for the five consecutive green runs is kept in `.itac/FIVE_GREEN.md`.
 
@@ -27,8 +27,9 @@ injected from the environment, GitHub Actions with a public GitHub Pages report,
 - Consistency between the dashboard and the API for the same record (country).
 
 **Out of scope for this round (with reason)**
-- MCP server, screenings, network graph, monitoring settings, exports (PDF/XLSX/PPTX): no inherited coverage, and the
-  three-hour window was spent on stabilising and proving the existing scope. Listed as next coverage in §11.
+- MCP server, the network canvas graph, alert deliveries, and UI writes (UI-PF-06 add/remove a monitored company) because a
+  write would change the counts that the parallel parity tests compare. API-AUTH-09 (`/org/api-keys` uniform 401) is
+  excluded because the product fails it (SpiraTest IN:81); a failing test would not be hidden by a skip, so it is not in the certified suite.
 - Admin-only writes (API keys, SCIM, SSO), alert deliveries: not available to the contestant account / not verifiable in CI.
 - Cross-browser: chromium only, to keep five full runs inside the time budget.
 
@@ -129,14 +130,27 @@ Retries are disabled so a flaky test cannot hide behind a rerun.
 
 ## 10. Entry and exit criteria
 
-Entry: secrets present, `npm run typecheck` clean, suite discovers 24 tests in two projects.
+Entry: secrets present, `npm run typecheck` clean, suite discovers 50 tests in two projects (24 api, 26 chromium).
 Exit (certification): five consecutive successful full-suite GitHub Actions runs on one commit, retries 0, 0 skipped,
-0 flaky, 24 passed, each with a public report; recorded with run URLs, SHA and timestamps in `.itac/FIVE_GREEN.md`.
+0 flaky, 50 passed, each with a public report, all five after the last change of code **and** credentials; recorded with run URLs, SHA and timestamps in `.itac/FIVE_GREEN.md`.
 
 ## 11. Defects, risks, known limitations
 
 - Root causes of the ten inherited failures, product observations (P-1 test-id inconsistency → IN:82, P-2 EDD Dossiers/Signals unlinked → IN:83,
   P-3 `?from=portfolio`) and residual risks: `docs/DEFECTS_AND_CHANGES.md`.
+- Residual risks from live, shared data (declared, not hidden):
+  1. Parity tests read the API seconds before the UI assertion (UI-PF-02, UI-DB-01/03/04, UI-CTY-02); a product data
+     refresh between the two reads fails them. That is real drift, not test logic.
+  2. First-row dependence: API-DL-02 needs the top deal to have a sector and a 3-letter word in its name; UI-DB-09 needs a
+     row with a "$" value; UI-PF-05 uses the newest transition; API-EN-04, UI-NET-03 and UI-NET-04-lite use the first book company.
+  3. Branches that did not execute on today's data and are therefore not claimed as verified: ownership hop citations
+     (first company's chain has no hops), screening and monitoring-target item fields (both lists empty), UI-PF-05's
+     "Cause not available" branch, UI-NET-04-lite's owner branch.
+  4. Every UI test signs in through the form; concurrent sign-ins with one account during a slow spell once left a probe
+     on `/login`. Not seen in any full 2-worker run.
+  5. Observations not filed as defects: unscored Portfolio Score cells are visually empty ("Not scored" only in the
+     aria-label/title); deal names rendered with ", " where the API has " - "; Germany shows 5 breakdown rows vs 7 API rows
+     because the page prints only components with data (documented in countries.md).
 - Next coverage, in priority order: screenings read with sources; network/ownership chain via API; monitoring settings;
   deal exports (content-type and size); MCP `tools/list` and one data tool; axe-core smoke on login and Deal Book.
 
