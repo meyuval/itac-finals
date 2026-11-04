@@ -63,13 +63,18 @@ test.describe('UI: authentication', () => {
   });
 
   // inherited: ui 5 logout
-  test('sign-out ends the session and protected routes redirect again', async ({ loggedInApp }) => {
-    await loggedInApp.shell.signOut();
-    await expect(loggedInApp.page).toHaveURL(/\/login$/);
-    await expect(loggedInApp.login.heading).toBeVisible();
+  // Signs in on its own session: signing out the worker's shared session would sign out the tests after it.
+  test('sign-out ends the session and protected routes redirect again', async ({ app, config }) => {
+    await app.login.goto();
+    await app.login.signIn(config.email, config.password);
+    await expect(app.shell.pageHeading).toHaveText('Deal Book');
 
-    await loggedInApp.goto('/portfolio');
-    await expect(loggedInApp.page).toHaveURL(/\/login$/);
-    await expect(loggedInApp.login.heading).toBeVisible();
+    await app.shell.signOut();
+    await expect(app.page).toHaveURL(/\/login$/);
+    await expect(app.login.heading).toBeVisible();
+
+    await app.goto('/portfolio');
+    await expect(app.page).toHaveURL(/\/login$/);
+    await expect(app.login.heading).toBeVisible();
   });
 });
