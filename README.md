@@ -11,9 +11,9 @@ extended on 4 Nov 2026 by Yuval Menashe.
 | Public execution reports (one per run, with run number and commit) | https://meyuval.github.io/itac-finals/ |
 | Five consecutive green runs (evidence table) | [.itac/FIVE_GREEN.md](.itac/FIVE_GREEN.md): commit `6abf104`, runs [#1](https://github.com/meyuval/itac-finals/actions/runs/41882894791)–[#5](https://github.com/meyuval/itac-finals/actions/runs/41884761006), 50/50 each, retries 0 |
 | Latest certified run and its report | https://github.com/meyuval/itac-finals/actions/runs/41884761006 → https://meyuval.github.io/itac-finals/runs/5/ |
-| Test strategy (STP) | [docs/STP.md](docs/STP.md) |
+| Test strategy (STP/STR) | [docs/Stonewake_ITAC2026_STP_STR_v4.pdf](docs/Stonewake_ITAC2026_STP_STR_v4.pdf) |
 | Defects, root causes and changes | [docs/DEFECTS_AND_CHANGES.md](docs/DEFECTS_AND_CHANGES.md) |
-| AI usage (tools, prompts, AI-changed areas) | [docs/AI_USAGE.md](docs/AI_USAGE.md) |
+| AI usage (prompts log, AI-changed areas) | [prompts log](docs/AI_PROMPTS_LOG.md) · [AI-changed areas](docs/AI_CHANGED_AREAS.md) |
 
 ## Before and after
 
@@ -93,6 +93,15 @@ fixtures and business APIs. Tests state scenarios and expected outcomes; selecto
 upload the report as an artifact → publish it to the `gh-pages` branch under `runs/<run number>/` with a banner naming
 the run, the commit and the result. The site index lists every published run. Runs are queued, never cancelled.
 
+### How to execute the GitHub Actions workflow
+
+1. Repository secrets (Settings → Secrets and variables → Actions): `STONEWAKE_EMAIL`, `STONEWAKE_PASSWORD`, `STONEWAKE_API_KEY`.
+2. Run it: push to `main`, or open **Actions → Playwright → Run workflow** (optional label input), or from a terminal:
+   `gh workflow run playwright.yml -R meyuval/itac-finals --ref main`, then `gh run watch -R meyuval/itac-finals`.
+3. Results: the run's summary page shows counts and the report link; the report is at
+   https://meyuval.github.io/itac-finals/runs/<run number>/ and the HTML report is also attached as an artifact.
+4. Five consecutive green runs: [.itac/FIVE_GREEN.md](.itac/FIVE_GREEN.md).
+
 ## New coverage (risk-based, test IDs from `docs/test-plan.html`)
 
 - API: deals list/detail/documents (API-DL-01/02/05/06), rate-limit policy and team scope (API-AUTH-05/06), transitions feed (API-PF-06), country scoring rules (API-CT-01/02), node and ownership routes (API-EN-04), screenings and monitoring reads (API-SC-01, API-MON-01), plus the earlier rate-limit, pagination and country-parity tests.
@@ -105,14 +114,19 @@ the run, the commit and the result. The site index lists every published run. Ru
   provenance. The organizers have been asked to rotate those credentials.
 - Tests run against the live, shared competition workspace; one inherited test relies on institution `/entities/4`.
 - "EDD Dossiers" and "Signals" have no sidebar link in this workspace; their pages are covered by direct URL and the missing link is filed as SpiraTest IN:83.
-- Parity tests compare live counts read seconds apart; a product data refresh between the two reads fails them by design (genuine drift, not test logic). Some tests use the first row of a live list (top deal, newest transition, first book company), and some branches did not execute on today's data (ownership hop citations, screening and monitoring-target item fields, the "Cause not available" branch). These are listed in `docs/STP.md` section 11.
+- Parity tests compare live counts read seconds apart; a product data refresh between the two reads fails them by design (genuine drift, not test logic). Some tests use the first row of a live list (top deal, newest transition, first book company), and some branches did not execute on today's data (ownership hop citations, screening and monitoring-target item fields, the "Cause not available" branch). These are listed in the STP/STR ([docs/Stonewake_ITAC2026_STP_STR_v4.pdf](docs/Stonewake_ITAC2026_STP_STR_v4.pdf)).
 - Not implemented: UI-PF-06 (add/remove a monitored company) because it mutates the book while parity tests count it; API-AUTH-09 (`/org/api-keys` uniform 401) because the product fails it (SpiraTest IN:81).
 
 ## AI usage
 
-Built with Claude Code (model Claude Fable 5.1) under the organizers' AI-transparency rule. The log of the main prompts,
-what the AI produced, what the human decided, and which files were created or changed with AI is in
-[docs/AI_USAGE.md](docs/AI_USAGE.md). In short: AI drafted the audit, the layered refactor, the CI workflow and the
+Built with Claude Code (model Claude Fable 5.1; Claude Opus 5.5 subagents) under the organizers' AI-transparency rule.
+Other AI tools: **ChatGPT** turned our instructions into better prompts for Claude Code. **Gemini** transcribed the
+competition's opening session and Luca's product review. Neither touched the code.
+
+- Main prompts log: [docs/AI_PROMPTS_LOG.md](docs/AI_PROMPTS_LOG.md)
+- Parts created or changed with AI: [docs/AI_CHANGED_AREAS.md](docs/AI_CHANGED_AREAS.md)
+
+AI produced most of the code. In short: AI drafted the audit, the layered refactor, the CI workflow and the
 documentation; the 30 new tests were implemented by a second Claude Code session using seven parallel subagents, one per
 test group, each verifying its locators against a live DOM snapshot; every change was reviewed and the root causes were
 verified against the live product before fixing.
