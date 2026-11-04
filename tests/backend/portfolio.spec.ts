@@ -73,4 +73,35 @@ test.describe('API: portfolio (monitored book)', () => {
     expect(list.status).toBe(200);
     expect(list.body.total).toBe(summary.body.active_exposures);
   });
+
+  // new: transitions feed ordering, cause shape and the timezone-aware since filter
+  test('API-PF-06 transitions are newest first and honour the since filter', async ({ api }) => {
+    const feed = await api.portfolioTransitions({ limit: 50 });
+    expect(feed.status).toBe(200);
+    expect(feed.body.items.length).toBeGreaterThan(0);
+    const times = feed.body.items.map((item) => Date.parse(item.occurred_at));
+    for (let i = 0; i < times.length; i++) {
+      expect(Number.isNaN(times[i]), feed.body.items[i].occurred_at).toBe(false);
+      if (i > 0) {
+        expect(times[i], `transition ${feed.body.items[i].id}`).toBeLessThanOrEqual(times[i - 1]);
+      }
+    }
+    for (const item of feed.body.items) {
+      expect(['added', 'change']).toContain(item.cause.kind);
+      expect(typeof item.cause.available).toBe('boolean');
+    }
+
+    const since = '2026-10-01T00:00:00Z';
+    const filtered = await api.portfolioTransitions({ limit: 50, since });
+    expect(filtered.status).toBe(200);
+    for (const item of filtered.body.items) {
+      expect(Date.parse(item.occurred_at), `transition ${item.id}`).toBeGreaterThanOrEqual(Date.parse(since));
+    }
+
+    const naive = await api.portfolioTransitions({ since: '2026-10-01T00:00:00' });
+    expect(naive.status).toBe(422);
+    const detail = (naive.body as unknown as ErrorEnvelope).detail;
+    expect(detail?.[0]?.type).toBe('timezone_aware');
+    expect(detail?.[0]?.loc).toEqual(['query', 'since']);
+  });
 });

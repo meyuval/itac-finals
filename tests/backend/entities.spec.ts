@@ -41,4 +41,38 @@ test.describe('API: institutions (entities)', () => {
     const anonymous = await anonApi.entity(999_999);
     expect(anonymous.status).toBe(401);
   });
+
+  test('API-EN-04 node routes of a book company agree with the book', async ({ api }) => {
+    const book = await api.portfolio({ limit: 1 });
+    expect(book.status).toBe(200);
+    expect(book.body.items.length).toBe(1);
+    const { node_id: nodeId, label } = book.body.items[0];
+
+    const node = await api.node(nodeId);
+    expect(node.status).toBe(200);
+    expect(node.body.node_id).toBe(nodeId);
+    expect(node.body.label).toBe(label);
+
+    const chain = await api.nodeOwnershipChain(nodeId);
+    expect(chain.status).toBe(200);
+    expect(chain.body.root_id).toBe(nodeId);
+    expect(Array.isArray(chain.body.paths)).toBe(true);
+    expect(chain.body.paths.length).toBeGreaterThanOrEqual(1);
+    for (const path of chain.body.paths) {
+      // network.md: "hop by hop with each hop cited"; every path also states why the walk stopped.
+      expect(typeof path.terminal.reason).toBe('string');
+      expect(path.terminal.reason.length).toBeGreaterThan(0);
+      expect(path.terminal.wording.length).toBeGreaterThan(0);
+      for (const hop of path.hops) {
+        expect(Array.isArray(hop.witnesses)).toBe(true);
+        expect(hop.witnesses.length).toBeGreaterThan(0);
+        for (const witness of hop.witnesses) {
+          expect(typeof witness.record_id).toBe('number');
+        }
+      }
+    }
+
+    const missing = await api.node(999_999_999);
+    expect(missing.status).toBe(404);
+  });
 });

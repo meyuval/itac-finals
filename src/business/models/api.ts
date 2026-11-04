@@ -87,6 +87,17 @@ export interface Deal {
   countries_iso3: string[];
   score_window: string | null;
   score_window_label: string | null;
+  summary: string | null;
+  buyer: string | null;
+  /** Set only when the list is read with `q`: where each term of q was found (`DealQMatchOut`). */
+  q_matched: DealQMatch[] | null;
+}
+
+/** One term of the free-text search `q` and the first field of the row that holds it. */
+export interface DealQMatch {
+  term: string;
+  field: 'name' | 'buyer' | 'agencies' | 'exporters' | 'summary';
+  value?: string | null;
 }
 
 /** Deal detail (`V1DealDetailOut`). */
@@ -106,11 +117,25 @@ export type DealDocument = (typeof DEAL_DOCUMENTS)[number];
 export interface OwnershipChain {
   root_id: number;
   nodes: unknown;
-  paths: Array<{ hops: Array<{ owner_id: number; witnesses: unknown[] }> }>;
+  paths: Array<{
+    hops: Array<{ owner_id: number; witnesses: OwnershipWitness[] }>;
+    /** Why the walk stopped (OwnershipTerminalOut); set on every path. */
+    terminal: { reason: string; wording: string };
+  }>;
+}
+
+/** OwnershipWitnessOut: the register record a hop is cited from. */
+export interface OwnershipWitness {
+  record_id: number;
+  connector_id: string;
+  source_class: string;
 }
 
 export interface Node {
   id: number;
+  /** V1NodeDetailOut keys the id as `node_id` (live and in openapi.json). */
+  node_id: number;
+  node_type: string;
   label: string;
 }
 
@@ -138,9 +163,17 @@ export interface CountrySummary {
 export interface RiskBreakdownRow {
   component: string;
   weight: number;
-  contribution: number;
+  /** Null when the component has no data (`missing: true`), per the OpenAPI schema. */
+  contribution: number | null;
+  missing: boolean;
   part: string;
   citation: { dataset_id: string } | null;
+}
+
+/** A breakdown component without data, with the reason it is missing. */
+export interface RiskGap {
+  component: string;
+  reason: string;
 }
 
 export interface CountryList {
@@ -151,7 +184,7 @@ export interface CountryList {
 export interface Country extends CountrySummary {
   iso2: string;
   region: string;
-  risk: { score: number; breakdown: RiskBreakdownRow[]; gaps: unknown[] };
+  risk: { score: number; breakdown: RiskBreakdownRow[]; gaps: RiskGap[] };
 }
 
 export interface SearchHit {

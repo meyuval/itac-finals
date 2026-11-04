@@ -83,4 +83,42 @@ test.describe('API: health and authentication boundary', () => {
     expect(portfolio.status()).toBe(401);
     expect((await anonApi.me()).status).toBe(401);
   });
+
+  // new: the documented RateLimit-Policy header is sent on success and error responses alike
+  test('API-AUTH-05 rate-limit policy header is present on 200, 401 and 404 responses', async ({ api, anonApi }) => {
+    const ok = await api.me();
+    const unauthenticated = await anonApi.me();
+    const notFound = await api.raw('/v1/nope');
+    expect(ok.status).toBe(200);
+    expect(unauthenticated.status).toBe(401);
+    expect(notFound.status).toBe(404);
+    for (const [label, response] of [['200', ok], ['401', unauthenticated], ['404', notFound]] as const) {
+      const policy = response.headers['ratelimit-policy'];
+      expect(policy, `RateLimit-Policy on ${label}`).toMatch(/key-minute/);
+      expect(policy, `RateLimit-Policy on ${label}`).toMatch(/workspace-day/);
+    }
+  });
+
+  // new: a team-scoped key only ever sees rows of its own team
+  test('API-AUTH-06 the key is scoped to one team and every book row carries it', async ({ api }) => {
+    const me = await api.me();
+    expect(me.status).toBe(200);
+    expect(me.body.team_scope.all_teams).toBe(false);
+    expect(me.body.team_scope.teams).toHaveLength(1);
+    const teamId = me.body.team_scope.teams[0].id;
+
+    const portfolio = await api.portfolio({ limit: 100 });
+    expect(portfolio.status).toBe(200);
+    expect(portfolio.body.items.length).toBeGreaterThan(0);
+    for (const item of portfolio.body.items) {
+      expect(item.team_id, `exposure ${item.id}`).toBe(teamId);
+    }
+
+    const transitions = await api.portfolioTransitions({ limit: 50 });
+    expect(transitions.status).toBe(200);
+    expect(transitions.body.items.length).toBeGreaterThan(0);
+    for (const transition of transitions.body.items) {
+      expect(transition.team_id, `transition ${transition.id}`).toBe(teamId);
+    }
+  });
 });
