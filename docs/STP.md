@@ -146,11 +146,24 @@ Exit (certification): five consecutive successful full-suite GitHub Actions runs
   3. Branches that did not execute on today's data and are therefore not claimed as verified: ownership hop citations
      (first company's chain has no hops), screening and monitoring-target item fields (both lists empty), UI-PF-05's
      "Cause not available" branch, UI-NET-04-lite's owner branch.
-  4. Every UI test signs in through the form; concurrent sign-ins with one account during a slow spell once left a probe
-     on `/login`. Not seen in any full 2-worker run.
+  4. UI tests share one real password sign-in per worker (since `6abf104`); if that one sign-in stalls during a slow spell,
+     every test of that worker fails. Seen once locally while two full runs used the account concurrently; not in CI.
   5. Observations not filed as defects: unscored Portfolio Score cells are visually empty ("Not scored" only in the
      aria-label/title); deal names rendered with ", " where the API has " - "; Germany shows 5 breakdown rows vs 7 API rows
      because the page prints only components with data (documented in countries.md).
+- Final false-positive audit (20:25–20:30, read-only, three reviewers):
+  - Inherited coverage: 20/20 inherited tests present, none weakened; every changed assertion has a documented,
+    evidence-based reason. One dropped implicit check (landing URL after sign-in in ui 5) restored in `d58b82f`.
+  - API (24): one real false positive fixed in `d58b82f` (API-PF-06 used a `since` older than every row, so an API that
+    ignored the filter passed); API-DL-02 and the portfolio list/paging tests tightened. Not exercised on this data:
+    hop citations, screening and monitoring item fields.
+  - UI (26): no test can pass signed out. Known weaknesses, **not fixed** (each fix needs another five-run certification
+    that did not fit before 21:00): institutions h1 only checked visible (not "UK Export Finance"); EDD Dossiers sidebar
+    absence uses a substring name match and can pass before the nav renders; Germany score matched anywhere in `main`;
+    UI-DB-03/04 can pass before the list updates when the filtered total equals the unfiltered one; UI-DB-06 does not
+    require >1 row; UI-DB-09 "cited" is any link in Briefing; UI-DB-11 PPTX only checked as ZIP; UI-PF-05 accepts
+    swapped from/to labels; two Portfolio tests can time out when company pages load slowly. Exact fixes are listed in
+    the audit and are the first follow-up.
 - Next coverage, in priority order: screenings read with sources; network/ownership chain via API; monitoring settings;
   deal exports (content-type and size); MCP `tools/list` and one data tool; axe-core smoke on login and Deal Book.
 

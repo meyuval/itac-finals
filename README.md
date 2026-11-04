@@ -9,7 +9,8 @@ extended on 4 Nov 2026 by Yuval Menashe.
 | Repository (submission) | https://github.com/meyuval/itac-finals (history: forked from AlexKomanov/stonewake-final-repo; the intermediate fork meyuval/stonewake-final-repo holds the earlier certification runs) |
 | GitHub Actions workflow | https://github.com/meyuval/itac-finals/actions/workflows/playwright.yml |
 | Public execution reports (one per run, with run number and commit) | https://meyuval.github.io/itac-finals/ |
-| Five consecutive green runs (evidence table) | [.itac/FIVE_GREEN.md](.itac/FIVE_GREEN.md) |
+| Five consecutive green runs (evidence table) | [.itac/FIVE_GREEN.md](.itac/FIVE_GREEN.md): commit `6abf104`, runs [#1](https://github.com/meyuval/itac-finals/actions/runs/41882894791)–[#5](https://github.com/meyuval/itac-finals/actions/runs/41884761006), 50/50 each, retries 0 |
+| Latest certified run and its report | https://github.com/meyuval/itac-finals/actions/runs/41884761006 → https://meyuval.github.io/itac-finals/runs/5/ |
 | Test strategy (STP) | [docs/STP.md](docs/STP.md) |
 | Defects, root causes and changes | [docs/DEFECTS_AND_CHANGES.md](docs/DEFECTS_AND_CHANGES.md) |
 | AI usage (tools, prompts, AI-changed areas) | [docs/AI_USAGE.md](docs/AI_USAGE.md) |

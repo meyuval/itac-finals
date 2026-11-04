@@ -1,6 +1,31 @@
 # Five consecutive green runs (certification evidence)
 
-Status: **SUPERSEDED, re-certification pending.** A five-green sequence was completed on `e0fd863` (below, 24 tests) and the code was then extended to 50 tests at `a8f194f` (frozen 19:39). At 19:41 the declared credentials changed to the Finalist 5 account, so a fresh sequence of five runs after the secret change is required; run #13 on the fork (push-triggered, old credentials) does not count. At 19:52 the user moved the submission to https://github.com/meyuval/itac-finals, so the qualifying runs will be GitHub Actions runs of that repository, reports at https://meyuval.github.io/itac-finals/.
+Status: **CERTIFIED on `6abf1045a17023f50831fe2cf459b9ebd4cd0a15`** (repository https://github.com/meyuval/itac-finals,
+GitHub Actions runs #1–#5, 4 Nov 2026 18:01–18:14 UTC = 20:01–20:14 Asia/Jerusalem). Five consecutive runs, all dispatched
+one at a time with `workflow_dispatch` after the Finalist 5 secrets were set (18:00:03Z), no failed or cancelled run in
+between. Data read from the Actions API and each run's log; nothing is inferred.
+
+Scope of each run: `npx playwright test`, projects `api` (24) + `chromium` (26) = 50 tests, `retries: 0`, 2 workers,
+ubuntu-latest, Node 22, Playwright 1.64.1, account Finalist 5 (workspace `itac-5`, viewer key, scopes read + reports).
+
+| # | Workflow run | Commit | Started (UTC) | Finished (UTC) | Passed / failed / flaky / skipped | Test time | Public report |
+|---|---|---|---|---|---|---|---|
+| 1 | [41882894791](https://github.com/meyuval/itac-finals/actions/runs/41882894791) | `6abf1045a170` | 2026-11-04T18:01:38Z | 2026-11-04T18:03:52Z | 50 / 0 / 0 / 0 | 1.4 m | https://meyuval.github.io/itac-finals/runs/1/ |
+| 2 | [41883315559](https://github.com/meyuval/itac-finals/actions/runs/41883315559) | `6abf1045a170` | 2026-11-04T18:03:59Z | 2026-11-04T18:06:40Z | 50 / 0 / 0 / 0 | 1.5 m | https://meyuval.github.io/itac-finals/runs/2/ |
+| 3 | [41883825380](https://github.com/meyuval/itac-finals/actions/runs/41883825380) | `6abf1045a170` | 2026-11-04T18:06:48Z | 2026-11-04T18:08:47Z | 50 / 0 / 0 / 0 | 1.3 m | https://meyuval.github.io/itac-finals/runs/3/ |
+| 4 | [41884232258](https://github.com/meyuval/itac-finals/actions/runs/41884232258) | `6abf1045a170` | 2026-11-04T18:09:04Z | 2026-11-04T18:11:58Z | 50 / 0 / 0 / 0 | 1.5 m | https://meyuval.github.io/itac-finals/runs/4/ |
+| 5 | [41884761006](https://github.com/meyuval/itac-finals/actions/runs/41884761006) | `6abf1045a170` | 2026-11-04T18:12:08Z | 2026-11-04T18:13:55Z | 50 / 0 / 0 / 0 | 1.2 m | https://meyuval.github.io/itac-finals/runs/5/ |
+
+Raw rows: `.itac/baseline/certification-runs.tsv`.
+
+**Changes after certification (disclosed, NOT five-times certified):**
+- `d104959` (ci): run summary lists the Pages report links. Run #6 (push) and #7 (dispatch): 50/50 green; run #8 cancelled by us when superseded.
+- `d58b82f` (ci + test): the Playwright workflow deploys GitHub Pages itself, so the report link appears on the Playwright
+  run page; API false-positive fixes from the final audit (API-PF-06 `since` cutoff, API-DL-02 sampled deal in results,
+  portfolio list/paging non-empty) and the restored landing-URL check in the inherited sign-out test. Verified locally
+  (api 24/24, retries 0) and by its push run; there was no time for five further runs before the 21:00 deadline.
+
+Earlier certifications on the intermediate fork (superseded by code and credential changes):
 
 Previous certification: **commit `e0fd863f495ed8602ec502c84f0471d7558b70d7`** (GitHub Actions runs #8–#12, 4 Nov 2026 17:08–17:16 UTC = 19:08–19:16 Asia/Jerusalem). Data below was read from the Actions API and each run's published `run.json`; nothing is inferred. If code changes after this commit, a new five-run sequence is required and this file is updated.
 
