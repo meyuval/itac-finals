@@ -1,35 +1,91 @@
 name: Playwright Tests
+run-name: "Playwright · run ${{ github.run_number }} · ${{ github.sha }} ${{ inputs.label }}"
 
 on:
   push:
-    branches: [master, main]
-  pull_request:
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      label:
+        description: "Optional label shown in the run name (e.g. certification 1/5)"
+        required: false
+        default: ""
 
+permissions:
+  contents: write # push the published report to the gh-pages branch
+  id-token: write
+
+# Qualifying runs must never be cancelled by a later push: queue them instead.
 concurrency:
-  group: playwright-${{ github.ref }}
-  cancel-in-progress: true
+  group: playwright-main
+  cancel-in-progress: false
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      STONEWAKE_APP_URL: ${{ vars.STONEWAKE_APP_URL || 'https://app.stonewake.ai' }}
+      STONEWAKE_API_URL: ${{ vars.STONEWAKE_API_URL || 'https://api.stonewake.ai' }}
+      STONEWAKE_EMAIL: ${{ secrets.STONEWAKE_EMAIL }}
+      STONEWAKE_PASSWORD: ${{ secrets.STONEWAKE_PASSWORD }}
+      STONEWAKE_API_KEY: ${{ secrets.STONEWAKE_API_KEY }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - name: Run Playwright tests
+
+      - name: Run Playwright tests (zero retries)
+        id: tests
         run: npx playwright test
-      - name: Upload HTML report
+
+      - name: Fail if the HTML report contains credentials
+        if: ${{ !cancelled() }}
+        run: |
+          for secret in "$STONEWAKE_API_KEY" "$STONEWAKE_PASSWORD" "swk_live_"; do
+            if [ -n "$secret" ] && grep -rqF -- "$secret" playwright-report; then
+              echo "::error::playwright-report contains a credential; refusing to publish"
+              exit 1
+            fi
+          done
+
+      - name: Upload HTML report artifact
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-run-${{ github.run_number }}
           path: playwright-report/
-          retention-days: 14
+          retention-days: 30
+
+      - name: Build the public report site (this run + history)
+        if: ${{ !cancelled() }}
+        env:
+          RUN_CONCLUSION: ${{ steps.tests.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          git clone --depth 1 --branch gh-pages "https://github.com/${{ github.repository }}.git" site 2>/dev/null || mkdir -p site
+          node scripts/ci/build-report-site.mjs site
+
+      - name: Publish report to GitHub Pages (gh-pages branch)
+        if: ${{ !cancelled() }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+          keep_files: false
+          force_orphan: true
+          commit_message: "report: run ${{ github.run_number }} (${{ github.sha }})"

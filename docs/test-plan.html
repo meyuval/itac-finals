@@ -105,7 +105,7 @@
   <div>Planned API cases</div><div>49 scenario rows: 13 derived from the 10 inherited API tests + 34 new + 2 MCP bonus; 23 are P1</div>
   <div>Certification scope</div><div>Chromium only, <code>retries: 0</code>, 2 workers, GitHub Actions on one frozen SHA, five consecutive green runs</div>
   <div>Freeze target</div><div>20:15 at the latest (see section 16)</div>
-  <div>Known product-bug candidates</div><div>4, listed in section 15; none filed yet</div>
+  <div>Product defects</div><div>1 confirmed and filed (SpiraTest IN:81), 2 open questions for Stonewake, 2 candidates withdrawn after verification; section 15</div>
 </div>
 
 <h2 id="s2">2. What was verified today (facts the plan relies on)</h2>
@@ -127,7 +127,8 @@
   <tr><td>Countries (UI)</td><td>Band buttons "High risk … 13 countries", "Elevated … 87 countries", "Moderate … 115 countries", "Unscored 30 countries"; "Search countries" textbox; Export; grouped table by region</td><td>Band counts sum to 245; "Unscored 30" should equal API countries with <code>risk_reason = below_coverage_floor</code></td></tr>
   <tr><td>Screenings (UI)</td><td>Empty state "Nothing screened yet", button "New screening". API <code>/v1/screenings</code> total 0</td><td>Any screening read test must first create one; the flow is asynchronous</td></tr>
   <tr><td>Monitoring (UI)</td><td>Settings-style page with text only; no table because <code>/v1/monitoring/targets</code> total is 0. Following is a tab of the Deal Book. <code>/v1/watches</code> total 25, cadence weekly</td><td>Monitoring coverage needs a Follow first</td></tr>
-  <tr><td>Encoding</td><td>API deal name reads <code>Japan Invest 3 LLC â€“ US natural gas …</code>; UI renders "Japan Invest 3 LLC, US natural gas …"; search hit <code>legal_form_label</code> reads <code>SA Ã  conseil …</code></td><td>Product-bug candidate (section 15)</td></tr>
+  <tr><td>Text encoding</td><td>Checked by raw bytes at 18:45: all 146 deal names and summaries and 31 search hits are valid UTF-8 (an earlier probe had garbled them by decoding with the Windows console code page)</td><td>No product issue; API probes must decode responses as UTF-8</td></tr>
+  <tr><td><code>/org/api-keys</code> refusals</td><td>401 with "Missing bearer token" (no header) or "Invalid or expired token" (invalid key and our valid key alike), plus an undocumented top-level <code>detail</code> field; every <code>/v1</code> route answers "Missing or invalid credentials." with no extra field</td><td>Confirmed product defect, SpiraTest IN:81 (section 15)</td></tr>
 </table>
 
 <h2 id="s3">3. Inherited project: baseline and root causes</h2>
@@ -343,7 +344,7 @@ src/support/files.ts        magic-byte checks: PDF (%PDF), PPTX/XLSX (PK zip), C
   <tr><td>API-AUTH-06</td><td>Team scoping of the key</td><td>Every item of /v1/deals, /v1/portfolio and /v1/portfolio/transitions carries <code>team_id</code> equal to me.team_scope.teams[0].id (or null for workspace-wide screenings)</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
   <tr><td>API-AUTH-07</td><td>Method not allowed</td><td>POST /v1/countries, DELETE /v1/portfolio → 405 <code>method_not_allowed</code></td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
   <tr><td>API-AUTH-08</td><td>Unknown route under /v1</td><td>GET /v1/health, /v1/nope → 404 <code>not_found</code> "Resource not found."</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
-  <tr><td>API-AUTH-09</td><td>Viewer key cannot manage keys</td><td>GET /org/api-keys and POST /org/api-keys → 403 <code>forbidden</code> (or 401 if the route ignores keys; record the actual)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-AUTH-09</td><td>Viewer key cannot manage keys</td><td>GET and POST /org/api-keys with no header, with an invalid key and with our valid key all answer 401 with the single documented body (code unauthenticated, message "Missing or invalid credentials.", no extra fields). <b>Fails today</b>: the messages differ and reveal the reason; filed as SpiraTest IN:81. Kept red with a note, as the judges allowed in the opening</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
 </table>
 
 <h3 id="s9-pf">9.2 Portfolio (spec: <code>portfolio.spec.ts</code>)</h3>
@@ -370,7 +371,7 @@ src/support/files.ts        magic-byte checks: PDF (%PDF), PPTX/XLSX (PK zip), C
   <tr><td>API-DL-06</td><td>Document downloads (reports scope)</td><td>/v1/deals/{id}/report.pdf and /pack.pdf → 200, content-type application/pdf, body starts with %PDF; /deck.pptx → 200, pptx content-type, body starts with PK; unknown id → 404; no key → 401</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
   <tr><td>API-DL-07</td><td>Screening roll-up</td><td>/v1/deals/{id}/screening-rollup → 200 with per-party entries (empty allowed); unknown id → 404</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
   <tr><td>API-DL-08</td><td>Binding queue and duplicates</td><td>/v1/deals/parties/binding-queue and /v1/deals/merge/suggestions → 200 envelopes, paging valid</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
-  <tr><td>API-DL-09</td><td>Text encoding probe</td><td>No <code>name</code>, <code>summary</code> or <code>legal_form_label</code> in the first 100 deals / 25 search hits contains the mojibake sequences "â€", "Ã " or "Â". Expected to FAIL today; it stays in the suite as a documented product-bug test, tagged and linked to the SpiraTest issue, and is excluded from the certification scope only if the judges accept a bug-caused red (see section 13)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-09</td><td>Text encoding probe</td><td>Every string field of the first 100 deals and 25 search hits is valid UTF-8 and contains none of the double-encoding sequences "â€", "Ã " or "Â". Regression guard; verified green by hand on 4 Nov 18:45 (the earlier suspicion was a probe decoding error, not the product)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
 </table>
 
 <h3 id="s9-cty">9.4 Countries and reference data (spec: <code>countries.spec.ts</code>)</h3>
@@ -461,7 +462,7 @@ src/support/files.ts        magic-byte checks: PDF (%PDF), PPTX/XLSX (PK zip), C
   <li>Live data changes during the evening: assert relationships and documented bounds; numbers observed today (146, 311, 25, 13) appear only as examples, never as expected values.</li>
   <li>Downloads and PDF generation get their own 90 s test timeout; they are not run in parallel with each other in one worker.</li>
   <li>429 or 503 from the API fails the test with the code and <code>Retry-After</code>; it is never retried silently and is reported as an environment event in the defect log.</li>
-  <li><b>No</b> <code>test.skip</code>, <code>test.fixme</code>, <code>.only</code>, <code>continue-on-error</code>, weakened assertions or disabled projects to get green. The one planned red (API-DL-09, product encoding bug) is handled as the judges said in the opening: either kept red with a note that it fails because of an application bug, or excluded with an explicit, disclosed annotation linking the SpiraTest issue. The choice is recorded in the README and STP; it is not hidden.</li>
+  <li><b>No</b> <code>test.skip</code>, <code>test.fixme</code>, <code>.only</code>, <code>continue-on-error</code>, weakened assertions or disabled projects to get green. The one planned red (API-AUTH-09, SpiraTest IN:81) is handled as the judges said in the opening: either kept red with a note that it fails because of an application bug, or excluded with an explicit, disclosed annotation linking the SpiraTest issue. The choice is recorded in the README and STP; it is not hidden.</li>
 </ul>
 
 <h2 id="s14">14. Entry and exit criteria</h2>
@@ -472,12 +473,13 @@ src/support/files.ts        magic-byte checks: PDF (%PDF), PPTX/XLSX (PK zip), C
 </div>
 
 <h2 id="s15">15. Defect candidates already observed (not yet filed)</h2>
-<p>Each must be reproduced by hand, captured (Jam.dev where possible) and filed in SpiraTest per the bug-report standard before it is counted. Severity is provisional.</p>
+<p>Verified by hand at 18:45–18:55. One defect is filed; two candidates were withdrawn once the evidence was checked; two remain questions for Stonewake.</p>
 <table>
   <tr><th>#</th><th>Observation</th><th>Where</th><th>Provisional severity</th><th>Next step</th></tr>
-  <tr><td>D1</td><td>UTF-8 double encoding in API text: deal name "Japan Invest 3 LLC â€“ US natural gas …" (en dash), search hit legal_form_label "SA Ã  conseil d'administration". The UI shows the same deal with a comma instead, so the surfaces also disagree on the name</td><td>GET /v1/deals, GET /v1/search</td><td>Medium (data quality, API consumers)</td><td>Reproduce with curl, count affected rows, file; keep API-DL-09 as the regression test</td></tr>
+  <tr><td>D1</td><td><b>Filed: SpiraTest IN:81.</b> <code>/org/api-keys</code> 401 responses reveal the refusal reason with two different messages ("Missing bearer token" / "Invalid or expired token"), call a valid key invalid, and add an undocumented <code>detail</code> field. The docs promise one fixed message per code and indistinguishable refusals. 100% reproducible, GET and POST</td><td>GET/POST /org/api-keys</td><td>Medium (security posture contract, misleading message)</td><td>Jam recording of the browser reproduction via https://api.stonewake.ai/docs to be attached by the tester; regression test API-AUTH-09</td></tr>
+  <tr><td>D1-old</td><td><b>Withdrawn.</b> The suspected UTF-8 mojibake in deal names was caused by the probe decoding the response with the Windows console code page; raw bytes are correct UTF-8 in all 146 deals and 31 search hits</td><td>automation</td><td>n/a</td><td>Lesson recorded: decode API bodies as UTF-8 in every probe</td></tr>
   <tr><td>D2</td><td>Portfolio status strip shows five tiles; the docs say six statuses "named the same way everywhere" (Sole trader missing from the strip; the count is 0 today so it may be hidden by design)</td><td>/portfolio</td><td>Low / docs</td><td>Ask Stonewake via the judges before filing</td></tr>
-  <tr><td>D3</td><td>Deal page document title stays "Deal Book · Stonewake" instead of naming the deal; every other page titles itself after its module or entity</td><td>/deals/{id}</td><td>Low (UX, accessibility)</td><td>Reproduce, file as minor</td></tr>
+  <tr><td>D3</td><td><b>Withdrawn.</b> The deal page title "Deal Book · Stonewake" follows the same convention as the institution page, whose title is "Institutions · Stonewake" (asserted by the inherited test ui 9, which passes). Module-named titles on detail pages are the product's rule, not a defect</td><td>/deals/{id}</td><td>n/a</td><td>none</td></tr>
   <tr><td>D4</td><td>Docs say the MCP server has 38 tools; tools/list returns 40 (search, fetch undocumented). Docs' rate-limit example (120/min) differs from the served policy (600/min), which is allowed by the docs themselves, so not a bug</td><td>docs.stonewake.ai/mcp</td><td>Low (documentation)</td><td>File as documentation issue if time allows</td></tr>
 </table>
 
@@ -495,7 +497,7 @@ src/support/files.ts        magic-byte checks: PDF (%PDF), PPTX/XLSX (PK zip), C
 
 <h2 id="s17">17. Open questions</h2>
 <ol>
-  <li>For the user: approve the P1 list and the handling of API-DL-09 (keep red with a note, or exclude with disclosure). Default if no answer: keep it red with the note, as the judges allowed in the opening.</li>
+  <li>For the user: approve the P1 list and the handling of API-AUTH-09, the regression test for SpiraTest IN:81 (keep red with a note, or exclude with disclosure). Default if no answer: keep it red with the note, as the judges allowed in the opening.</li>
   <li>For the user: are writes in the itac-5 workspace acceptable (add/remove a company, one screening per run, follow/unfollow)? Default: yes, with cleanup, as the workspace is ours alone.</li>
   <li>For the judges: do the five green runs have to be GitHub Actions runs? (We will do Actions regardless.) Will Judge 2's key, published in the upstream repo, be rotated?</li>
   <li>For Stonewake via the judges: is the missing Sole trader tile intentional when the count is zero (D2)?</li>
