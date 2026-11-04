@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 var KEY = 'swk_live_QRReoWVfrAKc91ipjs8WYqNpiCo9HzEWhYxKu5H8';
 
 test('api 1 health', async ({ request }) => {
-  var r = await request.get('https://api.stonewake.ai/v1/health');
+  var r = await request.get('https://api.stonewake.ai/health');
   expect(r.status()).toBe(200);
   var b = await r.json();
   expect(Object.keys(b).sort()).toEqual(['app', 'environment', 'status', 'version']);
@@ -14,10 +14,9 @@ test('api 1 health', async ({ request }) => {
 });
 
 test('api 2 me', async ({ request }) => {
-  var r = await request.get('https://api.stonewake.ai/v1/me', { headers: { Authorization: 'Token ' + KEY } });
+  var r = await request.get('https://api.stonewake.ai/v1/me', { headers: { Authorization: 'Bearer ' + KEY } });
   expect(r.status()).toBe(200);
   var b = await r.json();
-  console.log(b);
   expect(b.credential).toBe('api_key');
   expect(typeof b.role).toBe('string');
   expect(b.role).toMatch(/^[a-z_]+$/);
@@ -70,12 +69,12 @@ test('api 5 portfolio list', async ({ request }) => {
   var r = await request.get('https://api.stonewake.ai/v1/portfolio?limit=2', { headers: { Authorization: 'Bearer ' + KEY } });
   expect(r.status()).toBe(200);
   var b = await r.json();
-  expect(Array.isArray(b.data)).toBe(true);
-  expect(b.data.length).toBeLessThanOrEqual(2);
+  expect(Array.isArray(b.items)).toBe(true);
+  expect(b.items.length).toBeLessThanOrEqual(2);
   expect(b.limit).toBe(2);
   expect(b.offset).toBe(0);
   expect(Number.isInteger(b.total)).toBe(true);
-  for (var i of b.data) {
+  for (var i of b.items) {
     expect(typeof i.id).toBe('number');
     expect(typeof i.label).toBe('string');
     expect(typeof i.active).toBe('boolean');
@@ -160,12 +159,13 @@ test('api 9 countries', async ({ request }) => {
     expect(typeof c.name).toBe('string');
   }
   var de = b.countries.find((x: any) => x.iso3 == 'DEU');
+  expect(de).toBeDefined();
   expect(de.name).toBe('Germany');
   var r2 = await request.get('https://api.stonewake.ai/v1/countries/DEU', { headers: { Authorization: 'Bearer ' + KEY } });
   expect(r2.status()).toBe(200);
   var d = await r2.json();
   expect(d.iso3).toBe('DEU');
-  expect(d.iso2).toBe('GE');
+  expect(d.iso2).toBe('DE');
   expect(d.name).toBe('Germany');
   expect(d.region).toBe('europe');
   expect(d.risk.score).toBeGreaterThanOrEqual(0);
@@ -196,5 +196,5 @@ test('api 10 search', async ({ request }) => {
   expect((await r4.json()).detail[0].msg).toBe('String should have at least 2 characters');
   var r5 = await request.get('https://api.stonewake.ai/v1/search?q=bank&limit=99999', { headers: { Authorization: 'Bearer ' + KEY } });
   expect(r5.status()).toBe(422);
-  expect((await r5.json()).detail[0].msg).toBe('Input should be less than or equal to 50');
+  expect((await r5.json()).detail[0].msg).toBe('Input should be less than or equal to 25');
 });
