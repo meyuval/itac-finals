@@ -1,0 +1,7 @@
+# Playwright
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Secrets
+.playwright-mcp/
