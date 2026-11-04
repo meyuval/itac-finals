@@ -5,7 +5,7 @@
 | Version | 1.0 (4 Nov 2026, written against the inherited project; v0.1 was a pre-project draft from public docs) |
 | Author | Yuval Menashe, with Claude Code (Claude Fable 5.1) as drafting assistant, see `docs/AI_USAGE.md` |
 | SUT | Stonewake dashboard https://app.stonewake.ai and REST API https://api.stonewake.ai (MCP server out of scope this round) |
-| Project | https://github.com/meyuval/stonewake-final-repo (fork of AlexKomanov/stonewake-final-repo) |
+| Project | https://github.com/meyuval/itac-finals (submission repo; history forked from AlexKomanov/stonewake-final-repo via meyuval/stonewake-final-repo) |
 | Unknowns | Marked **[UNKNOWN]** where not verified |
 
 ## 1. Executive summary
@@ -119,7 +119,7 @@ performance or MCP tests this round (see §11).
   install → `npx playwright test` → credential scan of the HTML report → artifact → publish to `gh-pages` under
   `runs/<run number>/` with a banner (repository, run, commit, result, timestamp, link to the Actions run). Concurrency
   queues runs instead of cancelling them.
-- Public report index: https://meyuval.github.io/stonewake-final-repo/ (one row per run with pass/fail/flaky/skipped).
+- Public report index: https://meyuval.github.io/itac-finals/ (one row per run with pass/fail/flaky/skipped). Earlier runs on the intermediate fork: https://meyuval.github.io/stonewake-final-repo/.
 
 ## 9. Flakiness controls
 

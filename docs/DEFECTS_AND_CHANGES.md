@@ -1,7 +1,7 @@
 # Defects and changes log (ITAC 2026 final, 4 Nov 2026)
 
 Inherited project: https://github.com/AlexKomanov/stonewake-final-repo (commit `b4f92c9`, 10 API + 10 UI tests).
-Fork and submission: https://github.com/meyuval/stonewake-final-repo.
+Submission: https://github.com/meyuval/itac-finals (moved there at 19:52 on the user's instruction; the intermediate fork https://github.com/meyuval/stonewake-final-repo keeps the earlier CI runs).
 
 ## 1. Baseline (observed, not inferred)
 

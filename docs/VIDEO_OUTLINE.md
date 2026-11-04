@@ -24,7 +24,7 @@ and should be read from the linked evidence, not from memory.
 - Show the three new tests (rate-limit contract, offset pagination, UI/API country parity).
 
 ## 4. How stability improved (40 s)
-- Show https://meyuval.github.io/stonewake-final-repo/: the run table, 24 / 0 / 0 / 0 per run.
+- Show https://meyuval.github.io/itac-finals/: the run table, 24 / 0 / 0 / 0 per run.
 - Open one run: the banner with run number, commit and result; the list of 24 tests.
 - Show `.itac/FIVE_GREEN.md`: five consecutive green Actions runs on the same commit, timestamps and links.
 

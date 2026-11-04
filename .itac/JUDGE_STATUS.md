@@ -6,6 +6,7 @@
 | 17:40 | Draft STP v0.1 written at `docs/STP.md` from public docs (unknowns marked). |
 | 17:33–17:37 | Public surfaces probed (site, docs, API, MCP). Brief in `.itac/SUT_BRIEF.md`. No account/invite yet. Inherited project not received yet. |
 | 18:05 | Inherited project received: https://github.com/AlexKomanov/stonewake-final-repo (branch `master`, single commit `b4f92c9`). Merged into local `main` as merge commit `591c836` (`upstream` remote added; nothing pushed yet). Baseline: 10 API + 10 UI tests, Playwright 1.64.1, workflow `.github/workflows/playwright.yml` (artifact upload only, no Pages). Inherited repo tracks `.env` with live credentials, `node_modules` (329 files), `playwright-report/` and `test-results/` — must be untracked before any public push. |
+| 19:50–19:55 | User updated `.env` with the Finalist 5 credentials (verified: viewer key, scopes read+reports, team itac-5; UI sign-in passes). User instruction 19:52: submission repo is now https://github.com/meyuval/itac-finals (origin), not the fork. Pushed local main `650fc4f` there (no run: [skip ci]). Actions enabled; secrets NOT yet set on itac-finals (user action; my session cannot write secrets); Pages exists at https://meyuval.github.io/itac-finals/ but is set to build from main via workflow and must be switched to the gh-pages branch after the first run. README/STP/defect log/evidence relinked. |
 | 19:39–19:43 | Parallel session (itac-finals-d1) froze and pushed `a8f194f` (50 tests: api 24, chromium 26; two local zero-retry runs green, typecheck clean, integrity grep clean). Certification started, then **held** at 19:41: user switched the suite to the Finalist 5 credentials; no dispatch made; run #13 (push, old secrets) is non-qualifying. Docs updated for the 50-test state (README, STP residual risks, defect log P-4/P-5). Ledger M-table rewritten from the verified facts below. |
 | 19:05–19:20 | Five green on `f0a9705` (runs #3–#7) then superseded: audit of the EDD Dossier change showed `/dossiers` and `/signals` exist unlinked → test restored, SpiraTest IN:82 + IN:83 filed; five green on `e0fd863` (runs #8–#12, 24 tests). 19:16 organizer/product update: Monitoring now has Research + Sentiment views and "Monitor a name" (PDF `.itac/sut-docs/stonewake-at-a-glance.pdf`); verified live; read-only test added. App login page was slow/timed out once at ~19:17 (environment observation). A second Claude session (itac-finals-d1) is editing `src/business/models`, `stonewake-api.ts`, `api-client.ts`, `src/infrastructure/files` concurrently; coordination needed before the next push. |
 | 18:30–18:55 | Hygiene commit `a11c340`; fixes `1404939` (20/20 local); refactor `fba6c87` (23/23 local ×2); CI hardening `b25fb71`. Fork `main` pushed, Actions enabled, Pages enabled (https://meyuval.github.io/stonewake-final-repo/). CI runs #1 (fba6c87) and #2 (b25fb71) green: 23 passed, 0 flaky, 0 skipped, retries 0, ~1.5 min each. Public report verified: banner with run+SHA, no credentials. |
@@ -29,7 +30,7 @@
 | M3 refactor | PASS | `src/infrastructure`, `src/business`, `tests/{backend,ui}`; rationale in README; traceability table §3 of the defect log |
 | M4 coverage | PASS | 20 → 50 tests; IDs and rationale in README "New coverage" and `docs/STP.md` §4 |
 | M5 five green | IN PROGRESS | done on `e0fd863` (24 tests, runs #8–#12); must be redone on `a8f194f` (50 tests) with the Finalist 5 secrets, 5 runs one at a time, ~9 min |
-| M6 public links | IN PROGRESS | repo, workflow, run and Pages report all answer 200 anonymously (curl, 19:00); human incognito check pending |
+| M6 public links | IN PROGRESS | moved to meyuval/itac-finals at 19:52: repo public; workflow present; no run yet; Pages must be re-pointed to gh-pages after run 1; incognito check pending |
 | M7 STP/defects | PASS | `docs/STP.md` v1.0 (50 tests, residual risks), `docs/DEFECTS_AND_CHANGES.md` |
 | M8 SpiraTest | PASS | IN:81 (`/org/api-keys` 401 contract, with Jam), IN:82 (tile test-id), IN:83 (unlinked EDD Dossiers/Signals); all with steps/expected/actual |
 | M9 video | NOT STARTED | outline in `docs/VIDEO_OUTLINE.md`; human recording pending |
@@ -37,7 +38,7 @@
 | M11 form | NOT STARTED | https://forms.gle/TuATq3R2cu8hL8yY9, submit by 20:50 |
 
 ## Open blockers
-- Finalist 5 credentials must be set as the three repo secrets (parallel session) before the new five-run streak starts.
+- The three secrets must be set on meyuval/itac-finals by the user before the first run; then Pages → gh-pages; then the five-run streak.
 - After certification: push the evidence commit, incognito link check, record video, submit the form before 21:00.
 - Inherited credentials (`.env` of upstream) are public; rotation requested from the organizers.
 

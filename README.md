@@ -6,9 +6,9 @@ extended on 4 Nov 2026 by Yuval Menashe.
 
 | Link | URL |
 |---|---|
-| Repository (this fork) | https://github.com/meyuval/stonewake-final-repo |
-| GitHub Actions workflow | https://github.com/meyuval/stonewake-final-repo/actions/workflows/playwright.yml |
-| Public execution reports (one per run, with run number and commit) | https://meyuval.github.io/stonewake-final-repo/ |
+| Repository (submission) | https://github.com/meyuval/itac-finals (history: forked from AlexKomanov/stonewake-final-repo; the intermediate fork meyuval/stonewake-final-repo holds the earlier certification runs) |
+| GitHub Actions workflow | https://github.com/meyuval/itac-finals/actions/workflows/playwright.yml |
+| Public execution reports (one per run, with run number and commit) | https://meyuval.github.io/itac-finals/ |
 | Five consecutive green runs (evidence table) | [.itac/FIVE_GREEN.md](.itac/FIVE_GREEN.md) |
 | Test strategy (STP) | [docs/STP.md](docs/STP.md) |
 | Defects, root causes and changes | [docs/DEFECTS_AND_CHANGES.md](docs/DEFECTS_AND_CHANGES.md) |
