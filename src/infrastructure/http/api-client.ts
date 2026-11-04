@@ -3,6 +3,12 @@ import type { APIRequestContext, APIResponse } from '@playwright/test';
 /** Query values are passed through verbatim so tests can send deliberately invalid input. */
 export type Query = Record<string, string | number | boolean>;
 
+export interface BinaryResponse {
+  readonly status: number;
+  readonly headers: Record<string, string>;
+  readonly body: Buffer;
+}
+
 export interface JsonResponse<T> {
   readonly status: number;
   readonly headers: Record<string, string>;
@@ -27,6 +33,15 @@ export class ApiClient {
       params: query,
     });
     return this.toJson<T>(response);
+  }
+
+  /** GET for non-JSON payloads (PDF, PPTX, CSV). The body is returned as raw bytes. */
+  async getBinary(path: string, query?: Query): Promise<BinaryResponse> {
+    const response = await this.request.get(this.url(path), {
+      headers: this.headers(),
+      params: query,
+    });
+    return { status: response.status(), headers: response.headers(), body: await response.body() };
   }
 
   async post<T = unknown>(path: string, data?: unknown): Promise<JsonResponse<T>> {

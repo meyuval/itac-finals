@@ -1,14 +1,21 @@
-import type { ApiClient, JsonResponse, Query } from '../../infrastructure/http/api-client';
+import type { ApiClient, BinaryResponse, JsonResponse, Query } from '../../infrastructure/http/api-client';
 import type {
   Country,
   CountryList,
+  DealDetail,
+  DealDocument,
+  DealPage,
   Entity,
   Health,
   Me,
+  Node,
+  OwnershipChain,
   PageOf,
   PortfolioItem,
   PortfolioSummary,
+  Screening,
   SearchResult,
+  Transition,
 } from '../models/api';
 
 /** Limits documented in the OpenAPI spec (`.itac/sut-docs/openapi.json`). */
@@ -42,6 +49,23 @@ export class StonewakeApi {
     return this.client.get<PortfolioSummary>('/v1/portfolio/summary');
   }
 
+  portfolioTransitions(query?: Query): Promise<JsonResponse<PageOf<Transition>>> {
+    return this.client.get<PageOf<Transition>>('/v1/portfolio/transitions', query);
+  }
+
+  deals(query?: Query): Promise<JsonResponse<DealPage>> {
+    return this.client.get<DealPage>('/v1/deals', query);
+  }
+
+  deal(id: string, query?: Query): Promise<JsonResponse<DealDetail>> {
+    return this.client.get<DealDetail>(`/v1/deals/${id}`, query);
+  }
+
+  /** Generated deal documents (requires the `reports` scope). Returned as raw bytes. */
+  dealDocument(id: string, doc: DealDocument): Promise<BinaryResponse> {
+    return this.client.getBinary(`/v1/deals/${id}/${doc}`);
+  }
+
   entities(query?: Query): Promise<JsonResponse<PageOf<Entity>>> {
     return this.client.get<PageOf<Entity>>('/v1/entities', query);
   }
@@ -50,8 +74,20 @@ export class StonewakeApi {
     return this.client.get<Entity>(`/v1/entities/${id}`);
   }
 
-  node(id: number | string): Promise<JsonResponse<unknown>> {
-    return this.client.get(`/v1/nodes/${id}`);
+  node(id: number | string): Promise<JsonResponse<Node>> {
+    return this.client.get<Node>(`/v1/nodes/${id}`);
+  }
+
+  nodeOwnershipChain(id: number | string, query?: Query): Promise<JsonResponse<OwnershipChain>> {
+    return this.client.get<OwnershipChain>(`/v1/nodes/${id}/ownership-chain`, query);
+  }
+
+  screenings(query?: Query): Promise<JsonResponse<PageOf<Screening>>> {
+    return this.client.get<PageOf<Screening>>('/v1/screenings', query);
+  }
+
+  monitoringTargets(query?: Query): Promise<JsonResponse<PageOf<unknown>>> {
+    return this.client.get<PageOf<unknown>>('/v1/monitoring/targets', query);
   }
 
   countries(): Promise<JsonResponse<CountryList>> {
