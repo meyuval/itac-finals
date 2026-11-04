@@ -2,159 +2,146 @@
 
 | Field | Value |
 |---|---|
-| Version | 0.1 DRAFT (pre-project, written 4 Nov 2026 17:40 from public docs only) |
-| Author | Yuval Menashe, with Claude Code (Fable 5.1) as drafting assistant, see `docs/AI_USAGE.md` |
-| SUT | Stonewake dashboard https://app.stonewake.ai, REST API https://api.stonewake.ai, MCP https://mcp.stonewake.ai/ |
-| Status of unknowns | Marked **[UNKNOWN]**. To be resolved once the inherited project, the Stonewake invite and the Q&A answers arrive. |
+| Version | 1.0 (4 Nov 2026, written against the inherited project; v0.1 was a pre-project draft from public docs) |
+| Author | Yuval Menashe, with Claude Code (Claude Fable 5.1) as drafting assistant, see `docs/AI_USAGE.md` |
+| SUT | Stonewake dashboard https://app.stonewake.ai and REST API https://api.stonewake.ai (MCP server out of scope this round) |
+| Project | https://github.com/meyuval/stonewake-final-repo (fork of AlexKomanov/stonewake-final-repo) |
+| Unknowns | Marked **[UNKNOWN]** where not verified |
 
 ## 1. Executive summary
 
-The final asks us to take over an existing, unreliable Playwright + TypeScript project, make it trustworthy, extend it, and prove it with five consecutive green runs and public links. This plan sets scope, risk priorities and the coverage matrix for the six flows the Stonewake team recommended, and the rules we follow so that green means real.
-
-Baseline numbers, defects and the five-run evidence are **[UNKNOWN]** until the project is received and run. They will be filled in here and in `.itac/JUDGE_STATUS.md` as work happens.
+The inherited Playwright + TypeScript project had 20 tests in two flat files; 10 failed deterministically because of
+test defects (wrong path, auth scheme, field name, expected value, selectors), credentials were committed, and there was
+no structure, no configuration injection and no public report. This plan covers the stabilised and refactored suite:
+23 tests (20 inherited scenarios preserved, 3 added), two Playwright projects (`api`, `chromium`), retries 0, secrets
+injected from the environment, GitHub Actions with a public GitHub Pages report, and the evidence rules that make
+"green" mean something. Evidence for the five consecutive green runs is kept in `.itac/FIVE_GREEN.md`.
 
 ## 2. Scope and assumptions
 
 **In scope**
-- The six recommended flows (section 4), on the dashboard, plus read-only verification of the same data over the REST API and the MCP server.
-- Stabilising and refactoring the inherited suite without losing its original test intent.
-- Product bugs found on the way, reported in SpiraTest with Jam.dev evidence.
-- Light performance (response-time budgets on the API) and security (auth boundary, rate limiting, headers) checks, as the organizers said both are in scope.
+- Dashboard: sign-in and session boundary, sidebar navigation to all nine modules offered in the workspace, Deal Book
+  search and deal page, Countries list/search/detail, Institutions search/detail, Portfolio tiles and row navigation.
+- REST API (read-only, `/v1`): health, identity and rate-limit headers, authentication boundary, portfolio list/summary
+  and pagination, institutions list/detail/errors, countries list/detail, search and input validation.
+- Consistency between the dashboard and the API for the same record (country).
 
-**Out of scope for the 3-hour window (with reason)**
-- Writes that the product offers only to admins (API-key creation, SCIM, SSO). Reason: we may not hold admin rights, and the risk of locking the competition workspace is high.
-- Alert deliveries by SMS, email, Teams or webhook. Reason: needs external receivers; not verifiable in CI.
-- Screening and EDD dossier *completion*. Reason: long-running, asynchronous jobs that depend on external providers; we test the request and the read of an existing result instead.
-- Full cross-browser matrix. Reason: each extra browser multiplies the five-run CI time. Decision: chromium only for certification, unless the inherited config already runs more and stays within budget. **[UNKNOWN]**
+**Out of scope for this round (with reason)**
+- MCP server, screenings, network graph, monitoring settings, exports (PDF/XLSX/PPTX): no inherited coverage, and the
+  three-hour window was spent on stabilising and proving the existing scope. Listed as next coverage in §11.
+- Admin-only writes (API keys, SCIM, SSO), alert deliveries: not available to the contestant account / not verifiable in CI.
+- Cross-browser: chromium only, to keep five full runs inside the time budget.
 
 **Assumptions**
-- A1: Each contestant gets one personal account in a competition workspace full of test data (ITAC email, 4 Nov 17:25).
-- A2: The workspace is a sandbox where person data is switched off, so person lookups answer 404 by design, not by defect (docs: data-handling, mcp). Verify on login.
-- A3: An API key may or may not be available to us (keys are created by a workspace admin). If none, the API/MCP flow is tested only for the unauthenticated boundary and `/health`, and the gap is disclosed.
-- A4: The product changed heavily on 4 Nov 2026 (22 changelog entries). Many inherited failures are expected to be real UI changes, not flakiness.
+- A1: One personal account in the competition workspace *itac-ja*; the account is shared by the inherited `.env`, so
+  the organizers are asked to rotate it (see `docs/DEFECTS_AND_CHANGES.md` §5).
+- A2: Workspace data is test data and may change between runs; assertions avoid pinning live counts and row contents,
+  except the inherited `/entities/4` (UK Export Finance) check.
+- A3: The 4 Nov product changes (22 changelog entries) are reflected in the current UI; "EDD Dossiers" is not offered in
+  this workspace.
 
 ## 3. Risk analysis and priorities
 
-| # | Area | Risk if broken | Priority | Why |
+| # | Area | Risk if broken | Priority | Coverage now |
 |---|---|---|---|---|
-| R1 | Login and session | Nothing else can be tested; CI cannot run | High | Supabase auth, mandatory terms checkbox, magic-link alternative |
-| R2 | Deal Book list, search, filters, order | Core origination workflow, wrong deals shown or hidden | High | Complex rules: priority order, held-back deals, whole-word search, filter counts |
-| R3 | Deal page: summary, sources, export | Wrong or uncited facts reach a credit committee | High | Export to Excel, PDF report, PPTX deck; every claim must cite a source |
-| R4 | Portfolio statuses and status-change causes | Credit decisions on wrong colour | High | Six statuses; add-to-book; causes named per change |
-| R5 | Countries score and indicators | Wrong country risk | Medium-High | Deterministic formula with published weights; "Not scored" rule |
-| R6 | Network, ownership chain, financing | Wrong beneficial owner or lender | Medium-High | Canvas graph (no text alternative); ownership chain is tabular and testable |
-| R7 | Screenings read with sources | Missed adverse media | Medium | Request is async; verify reading an existing screening and its sources |
-| R8 | Monitoring settings (frequency, pause/resume) | Stale research | Medium | Was restructured today (Following tab, settings page) |
-| R9 | API/MCP parity with UI | Agents receive different data than humans | Medium | Docs promise same values, dates and order |
-| R10 | Auth boundary, rate limiting, security headers | Data exposure | Medium | Uniform 401 bodies, RateLimit headers, CSP, HSTS, X-Frame-Options |
-| R11 | Accessibility basics | Compliance target WCAG 2.1 AA; known gaps admitted | Low | Only if time allows; one axe-core smoke on two pages |
+| R1 | Sign-in, terms gate, session, sign-out | nothing else works; data exposure | High | `tests/ui/auth.spec.ts` (5 tests) |
+| R2 | Authentication boundary on the API | data exposure | High | `health-and-auth.spec.ts` (uniform 401, bad keys) |
+| R3 | Deal Book list/search/deal page | core workflow | High | `deal-book.spec.ts` |
+| R4 | Portfolio statuses, summary vs list consistency | wrong credit colour | High | `portfolio.spec.ts` (API ×3, UI ×1) |
+| R5 | Countries risk record, UI/API parity | wrong country risk | Medium-High | `countries.spec.ts` (API ×1, UI ×2) |
+| R6 | Institutions list/detail/validation | wrong counterparty | Medium | `entities.spec.ts`, `institutions.spec.ts` |
+| R7 | Search ranking bounds and validation | missed entity | Medium | `search.spec.ts` |
+| R8 | Rate-limit contract | automation or agents throttled unexpectedly | Low-Medium | new test: remaining decreases per call |
+| R9 | Navigation shell | module unreachable | Medium | `navigation.spec.ts` (9 modules) |
 
-## 4. Application flows and coverage matrix
+## 4. Coverage matrix
 
-Spec file names are the planned layout; they will be aligned with the inherited structure. **T** = test type: S smoke, P positive, N negative/boundary, D data/state, A API, X access/security.
+**T**: S smoke, P positive, N negative/boundary, D data consistency, A API, X access/security. Inherited scenarios keep
+their original intent and carry an `// inherited: …` comment in code.
 
-| Flow | Scenario | T | Priority | Planned spec |
+| Flow | Scenario | T | Origin | Spec |
 |---|---|---|---|---|
-| Auth | Login with valid credentials via setup project, `storageState` reused by all tests | S | High | `auth.setup.ts` |
-| Auth | Login refused without accepting Evaluation Terms; wrong password shows an error, no redirect | N | High | `auth.spec.ts` |
-| Auth | Protected route redirects to `/login` when signed out | X | High | `auth.spec.ts` |
-| Deal Book | List renders rows with Deal, Financing window, Value, Parties, Score, Last activity columns | S | High | `deal-book.spec.ts` |
-| Deal Book | Search keeps only rows that show every typed word; quoted phrase is exact; empty result names the filters and offers Clear | P/N | High | `deal-book.spec.ts` |
-| Deal Book | Stage filter lists only rows that read the chosen financing window; Filters button shows a count of active filters | P | High | `deal-book.spec.ts` |
-| Deal Book | Default order: Financing open, then Early stage, then Not confirmed; highest score first inside each group | D | High | `deal-book.spec.ts` |
-| Deal Book | Each list page has its own address; browser Back returns to the previous page | P | Medium | `deal-book.spec.ts` |
-| Deal Book | Held-back deals: count shown, toggle reveals them | P | Medium | `deal-book.spec.ts` |
-| Deal page | Opening a deal shows Stage, Key facts, summary lines each citing a source; source link opens a quote with URL and date | P | High | `deal-page.spec.ts` |
-| Deal page | Export downloads an `.xlsx`; file is non-empty and contains the visible deal names | D | High | `deal-export.spec.ts` |
-| Deal page | Download report produces a PDF (content-type and size asserted) | D | Medium | `deal-export.spec.ts` |
-| Screenings | Screenings list shows existing screenings; opening one shows findings with sources and official lists section | P | Medium | `screenings.spec.ts` |
-| Screenings | Requesting a screening for a company creates a new row in a non-final state (no wait for completion) | D | Medium | `screenings.spec.ts` |
-| Network | Company page shows ownership chain hop by hop, each hop with a citation | P | High | `network.spec.ts` |
-| Network | Financing section lists charges / listed debt with coverage states; Export CSV downloads rows with citations | D | Medium | `network.spec.ts` |
-| Network | "How are A and B connected?" returns a path or a clear "no path" message | P | Low | `network.spec.ts` |
-| Countries | List shows risk 0–100, band strip counts; clicking a band filters the list | P | High | `countries.spec.ts` |
-| Countries | A "Not scored" country shows its reason on hover and no number | N | Medium | `countries.spec.ts` |
-| Countries | Country page breakdown: component weights sum to 100 and the printed total equals the weighted sum | D | High | `countries.spec.ts` |
-| Countries | Export downloads a workbook; "No value on record" instead of blank cells | D | Medium | `countries.spec.ts` |
-| Portfolio | Counts strip equals the sum of rows per status in the book | D | High | `portfolio.spec.ts` |
-| Portfolio | Add a company to the monitored book, verify the row and the "Added to the book" review record, then remove it with a reason (cleanup) | D | High | `portfolio.spec.ts` |
-| Portfolio | Adding the same company twice is refused with a message naming the existing entry | N | Medium | `portfolio.spec.ts` |
-| Portfolio | Status change row names a cause; acknowledge removes it from open changes | P | Medium | `portfolio.spec.ts` |
-| Monitoring | Following tab lists followed deals/names; Follow a name adds one; Monitoring page shows it with frequency; pause then resume toggles status | D | Medium | `monitoring.spec.ts` |
-| API | `/health` returns ok; `/v1/*` without key returns 401 with `error.code = unauthenticated`; bad key gets the identical body | X/A | High | `api-boundary.spec.ts` |
-| API | `RateLimit-Policy` header present on every `/v1` response | A | Medium | `api-boundary.spec.ts` |
-| API (if key) | `GET /v1/deals` items match the first page of the UI Deal Book (names and order); `GET /v1/countries/{iso3}` risk equals the country page score | A/D | High | `api-parity.spec.ts` |
-| MCP | `tools/list` returns the documented tools; tool call without key returns JSON-RPC `-32001` | A | Medium | `mcp.spec.ts` |
-| MCP (if key) | `deal_book` result equals `GET /v1/deals` for the same filter | A/D | Medium | `mcp.spec.ts` |
-| Security | Security headers on the app (CSP, HSTS, X-Frame-Options DENY, nosniff) | X | Low | `security-headers.spec.ts` |
-| Performance | API p95 for `/health` and one list endpoint under a stated budget, measured in CI and reported, not asserted hard unless stable | A | Low | `perf-smoke.spec.ts` |
-
-Coverage will be reported as scenario count per flow, not as raw test count.
+| Auth | sign-in lands on Deal Book with sidebar | S | inherited ui 1 | `tests/ui/auth.spec.ts` |
+| Auth | wrong password: message, stays on `/login`, no sidebar | N | inherited ui 2 | same |
+| Auth | Sign in disabled until terms accepted; toggle back disables | N | inherited ui 3 | same |
+| Auth | anonymous access to `/`, `/portfolio`, `/countries/DEU`, `/entities` redirects | X | inherited ui 4 | same |
+| Auth | sign-out ends session; protected route redirects again | X | inherited ui 5 | same |
+| Shell | each sidebar module opens its route and heading | S | inherited ui 6 (adapted to the nine modules present) | `navigation.spec.ts` |
+| Deal Book | filters visible, Deals tab selected, nonsense search → "No matching deals", deal opens with Briefing | P/N | inherited ui 7 | `deal-book.spec.ts` |
+| Countries | search Germany → DEU page with Country risk and Data sources; nonsense search → none; ZZZ → not found | P/N | inherited ui 8 | `countries.spec.ts` |
+| Countries | dashboard name and risk score equal the API record | D | **new** | same |
+| Institutions | search UKEF isolates UK Export Finance (count 1); detail page title | P | inherited ui 9 | `institutions.spec.ts` |
+| Portfolio | five status tiles visible; first monitored row opens its institution page with matching heading | P | inherited ui 10 | `portfolio.spec.ts` |
+| API | `/health` public and shaped | S/A | inherited api 1 | `health-and-auth.spec.ts` |
+| API | `/v1/me`: credential, role, team scope, rate-limit headers | A | inherited api 2 | same |
+| API | rate-limit remaining decreases across two keyed calls | A/N | **new** | same |
+| API | missing credential → uniform 401 on five routes | X | inherited api 3 | same |
+| API | invalid/malformed credentials → same 401 body | X | inherited api 4 | same |
+| API | portfolio list typed; limit bounds 100 / -1 / abc / 100000 | A/N | inherited api 5 | `portfolio.spec.ts` |
+| API | offset pagination disjoint and consistent with total | A/D | **new** | same |
+| API | summary buckets sum to active exposures = list total | D | inherited api 6 | same |
+| API | entities list typed; detail equals list item | A/D | inherited api 7 | `entities.spec.ts` |
+| API | entity 404 / 422 int_parsing / node 404 / anonymous 401 | N/X | inherited api 8 | same |
+| API | countries ≥ 100, DEU record (iso2 DE, europe, risk 0–100), ZZZ 404 | A/N | inherited api 9 | `countries.spec.ts` |
+| API | search hits scored; nonsense → []; missing q, short q, limit > 25 → 422 | A/N | inherited api 10 | `search.spec.ts` |
 
 ## 5. Test types and exclusions
 
-| Type | In scope | Note |
-|---|---|---|
-| Smoke | Yes | Login, each module loads |
-| Positive | Yes | Per flow above |
-| Negative / boundary | Yes | Empty search, bad login, duplicate add, unauthenticated API |
-| State and data | Yes | Add then verify then remove; export files parsed |
-| Access control | Partial | Signed-out redirect, API 401. Two-user isolation: **[UNKNOWN]**, needs a second account |
-| API | Yes | Unauthenticated boundary always; authenticated parity only with a key |
-| Cross-browser | No for certification | Chromium only; firefox/webkit optional nightly project, off by default |
-| Responsive | Optional | One mobile viewport test of Deal Book block layout if time allows |
-| Visual (bonus) | Optional | `toHaveScreenshot` on the login page and Countries band strip, masked dynamic text |
-| Accessibility | Optional | One axe-core scan, informational |
+Functional UI (chromium, headless), functional API (Playwright request context), data-consistency checks across layers.
+No mocks: every test hits the live product, so failures can be real product defects. No visual, accessibility,
+performance or MCP tests this round (see §11).
 
 ## 6. Environments, browsers, configuration
 
-- SUT: live product, competition workspace. Base URL `https://app.stonewake.ai`. API `https://api.stonewake.ai`.
-- Local: Windows 10, Node.js LTS, Playwright (version pinned to the inherited project's, upgraded only if required and documented).
-- CI: GitHub Actions `ubuntu-latest`, chromium, `workers` tuned to the SUT's signed-in rate limit (2,190 reads/min is generous; keep workers ≤ 4). Report published to GitHub Pages, public.
-- Secrets: `SW_EMAIL`, `SW_PASSWORD`, optional `SW_API_KEY` as GitHub Actions secrets. Never in the repo. `storageState` and `.auth/` gitignored.
-- Retries: `0` for the certification runs. If the inherited config has retries, they are reported and first-attempt pass is distinguished from eventual pass.
-- Timeouts: expect ≤ 10 s, test ≤ 60 s; downloads and PDF generation get an explicit longer budget per test.
-- Traces: `on-first-retry` or `retain-on-failure`; traces are sanitized (no auth headers) before publishing. If sanitizing cannot be guaranteed, traces are kept as workflow artifacts only and the Pages report shows screenshots.
+| Item | Value |
+|---|---|
+| Runtime | Node 22 in CI (ubuntu-latest), Node 26 locally (Windows 10) |
+| Playwright | 1.64.1 pinned; chromium (Desktop Chrome device) |
+| Config | `playwright.config.ts`: `fullyParallel`, `retries: 0`, `forbidOnly` in CI, workers 2 in CI, test timeout 60 s, expect timeout 10 s, `baseURL` from `STONEWAKE_APP_URL`, trace/screenshot on failure only |
+| Secrets | `.env` locally (git-ignored); GitHub Actions secrets `STONEWAKE_EMAIL`, `STONEWAKE_PASSWORD`, `STONEWAKE_API_KEY`, scoped to the test and scan steps |
+| Type safety | `tsconfig.json` strict; `npm run typecheck` in CI before tests |
 
 ## 7. Test data, fixtures, cleanup
 
-- One personal account; login once in `auth.setup.ts`, reuse via `storageState`.
-- Read-only flows use data that exists in the workspace. Tests pick the **first visible row** at run time and assert relationships (e.g. a deal page shows the same name as the row clicked), never hard-coded IDs.
-- Write flows (add to book, follow a name, request screening) create their own state with a unique marker where the product allows it, verify, then clean up (Remove from book with reason, unfollow). If cleanup fails, the test fails loudly rather than leaving silent leftovers.
-- Downloads are saved to a per-test temp directory and parsed (xlsx via a small reader, PDF by magic bytes and size).
-- Person data: not expected in the sandbox (A2). No test depends on it.
+- All tests are read-only against the product; nothing is created, so nothing needs cleanup.
+- `config` (worker-scoped) validates the environment once; `api` / `anonApi` give authenticated and anonymous API
+  facades; `app` gives a signed-out `WebApp`; `loggedInApp` signs in through the page object and verifies the Deal Book
+  landing before the test starts. Each UI test gets its own browser context, so sign-out in one test cannot affect another.
+- Expected values that come from the OpenAPI spec are constants in `API_LIMITS`; runtime data (first deal, first
+  portfolio row) is read from the page, not hardcoded.
 
 ## 8. Execution and CI strategy
 
-1. Baseline: run the inherited suite unchanged 2–3 times locally and once in Actions; record pass/fail/flaky/skip and commit SHA.
-2. Stabilise by root cause (sync to visible state, semantic locators, isolated data, reliable auth). Check `.itac/sut-docs/changelog.md` for same-day product changes before rewriting a locator.
-3. Refactor modestly: page objects per module, shared fixtures, config cleanup. Preserve test intent.
-4. Add coverage in the priority order of section 4.
-5. Freeze: `freeze time = 20:30 − 5 × (measured CI wall-clock) − 15 min`. Then five sequential `workflow_dispatch` runs on one SHA, zero retries, dispatched one after another (same concurrency group cancels queued runs).
-6. Publish: README links to the run and the report; the report names run and SHA.
+- Local: `npm test` (both projects), `npm run test:api`, `npm run test:ui`.
+- CI (`.github/workflows/playwright.yml`): on push to `main` and manual dispatch; `npm ci` → typecheck → browser
+  install → `npx playwright test` → credential scan of the HTML report → artifact → publish to `gh-pages` under
+  `runs/<run number>/` with a banner (repository, run, commit, result, timestamp, link to the Actions run). Concurrency
+  queues runs instead of cancelling them.
+- Public report index: https://meyuval.github.io/stonewake-final-repo/ (one row per run with pass/fail/flaky/skipped).
 
 ## 9. Flakiness controls
 
-- Web-first assertions only (`expect(locator).toBeVisible()` etc.), no `waitForTimeout`.
-- Locator priority: `getByRole` → `getByText`/`getByPlaceholder` (many fields have placeholder-only labels) → `getByTestId` where the product exposes one → CSS as last resort with a comment.
-- Network-dependent pages: wait for the specific row or heading, not for `networkidle`.
-- Rate-limit awareness: ≤ 4 workers; API tests reuse one request context; a 429 is treated as an environment failure and reported with `Retry-After`.
-- No `test.skip`, `.only`, `continue-on-error`, or weakened assertions to get green. Any quarantine is disclosed in the README.
+Web-first assertions only (`toHaveURL`, `toBeVisible`, `toHaveText`, `toBeChecked`); no `waitForTimeout`; role/label/
+placeholder/test-id locators owned by page objects; a single sign-in implementation; status asserted before bodies are
+read; `find()` results guarded; URL assertions tolerate the product's query strings; API limit bounds come from the spec.
+Retries are disabled so a flaky test cannot hide behind a rerun.
 
 ## 10. Entry and exit criteria
 
-**Entry**: account works in a browser; inherited project runs locally; Actions and Pages enabled on the public repo.
-
-**Exit (for submission)**: five consecutive green Actions runs on one SHA with zero retries; README with three public links verified signed-out; this STP at version ≥ 1.0 with real numbers; defect log with SpiraTest IDs; AI usage section; video link.
+Entry: secrets present, `npm run typecheck` clean, suite discovers 23 tests in two projects.
+Exit (certification): five consecutive successful full-suite GitHub Actions runs on one commit, retries 0, 0 skipped,
+0 flaky, each with a public report; recorded with run URLs, SHA and timestamps in `.itac/FIVE_GREEN.md`.
 
 ## 11. Defects, risks, known limitations
 
-- Defect log: `docs/DEFECTS.md` **[to be created]**, separating product bugs (SpiraTest ID + Jam link), automation bugs fixed, and open investigations.
-- Known product observations already noted (not yet bugs): docs say 38 MCP tools, server lists 40; ITAC email typo `aoi.stonewake.ai`.
-- Residual risks: single account (no two-user isolation); async screenings not verified to completion; live data can change during the run (tests assert relationships, not fixed values); API parity depends on a key we may not get.
+- Root causes of the ten inherited failures, product observations (P-1 test-id inconsistency, P-2 EDD Dossiers absent,
+  P-3 `?from=portfolio`) and residual risks: `docs/DEFECTS_AND_CHANGES.md`.
+- Next coverage, in priority order: screenings read with sources; network/ownership chain via API; monitoring settings;
+  deal exports (content-type and size); MCP `tools/list` and one data tool; axe-core smoke on login and Deal Book.
 
 ## 12. Evidence and references
 
-- Judge ledger: `.itac/JUDGE_STATUS.md`
-- SUT brief and offline docs: `.itac/SUT_BRIEF.md`, `.itac/sut-docs/`
-- Five-run proof, links, SpiraTest IDs: **[UNKNOWN]**, to be added.
+- Baseline and local runs: `.itac/baseline/` (`local-baseline-591c836.txt`: 10 failed/10 passed; `phase1-run1.txt`:
+  20 passed; `phase2-run2.txt`: 23 passed; `negative-control-api9.txt`).
+- Five-run evidence: `.itac/FIVE_GREEN.md`. Status ledger: `.itac/JUDGE_STATUS.md`.
+- Product docs used: `.itac/sut-docs/` (OpenAPI, changelog, errors, keys), `.itac/SUT_BRIEF.md`.

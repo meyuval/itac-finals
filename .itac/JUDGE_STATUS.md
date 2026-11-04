@@ -6,6 +6,7 @@
 | 17:40 | Draft STP v0.1 written at `docs/STP.md` from public docs (unknowns marked). |
 | 17:33–17:37 | Public surfaces probed (site, docs, API, MCP). Brief in `.itac/SUT_BRIEF.md`. No account/invite yet. Inherited project not received yet. |
 | 18:05 | Inherited project received: https://github.com/AlexKomanov/stonewake-final-repo (branch `master`, single commit `b4f92c9`). Merged into local `main` as merge commit `591c836` (`upstream` remote added; nothing pushed yet). Baseline: 10 API + 10 UI tests, Playwright 1.64.1, workflow `.github/workflows/playwright.yml` (artifact upload only, no Pages). Inherited repo tracks `.env` with live credentials, `node_modules` (329 files), `playwright-report/` and `test-results/` — must be untracked before any public push. |
+| 18:30–18:55 | Hygiene commit `a11c340`; fixes `1404939` (20/20 local); refactor `fba6c87` (23/23 local ×2); CI hardening `b25fb71`. Fork `main` pushed, Actions enabled, Pages enabled (https://meyuval.github.io/stonewake-final-repo/). CI runs #1 (fba6c87) and #2 (b25fb71) green: 23 passed, 0 flaky, 0 skipped, retries 0, ~1.5 min each. Public report verified: banner with run+SHA, no credentials. |
 | 18:14 | Inherited README requires working in a GitHub fork. Fork created: https://github.com/meyuval/stonewake-final-repo (public, `isFork: true`, default branch `master`), added as remote `fork`. Local `main` fast-forwards onto `fork/master`; nothing pushed yet. Submission repo = the fork. Baseline `.last-run.json` from upstream: 10/20 failed (api 1,2,5,9,10; ui 1,3,6,7,10). |
 | 18:10–18:16 | Baseline run (root, `591c836`, after `npm ci`; the committed `node_modules` was partial and gave "did not expect test() to be called here"): **10 passed / 10 failed**, same set as runs 1–2 (api 1,2,5,9,10; ui 1,3,6,7,10). Log `.itac/baseline/run3-baseline.log`. Refactored suite (`stonewake-final-repo/`, uncommitted on `b4f92c9`): **32 passed / 1 failed of 33**, 51.7 s, retries 0. The failure is infrastructure, not an assertion: `apiRequestContext.dispose: ENOENT ...traces/*.network` from the custom `api` fixture under `trace: retain-on-failure`; reproduced 1 of 3 reruns of `tests/api/portfolio.spec.ts`. Log `stonewake-final-repo/.itac/runs/refactored-run1.log`. |
 | 18:16–18:27 | FP/FN audit. Baseline: all 10 failures are test defects, none product bugs (api 1 `/v1/health` vs `/health`; api 2 `Token` scheme vs Bearer; api 5 `data` vs `items`; api 9 iso2 `GE` vs `DE`; api 10 search limit max 50 vs 25 per OpenAPI; ui 1 `#email` has no id; ui 3 `input[type=checkbox]` is a hidden proxy (opacity 0, pointer-events none) behind `button[role=checkbox]`; ui 6 sidebar has no `EDD Dossier` entry in this workspace, `/dossiers` route works; ui 7 `/deal/` vs `/deals/`; ui 10 `tile-not-assessed` vs `tile-not_assessed`). Refactored suite: no skip/only/fixme/sleeps; no vacuous passes found (book total 25, 50 deal links, empty states have exact text). Dispose ENOENT not reproduced in 12 isolated reruns (6 with trace, 6 `--trace off`); root cause UNKNOWN: trace race in custom `api` fixture vs a concurrent run in the same checkout (files edited 18:10:30 and 18:11:47 by another session during my run). Rewritten `tests/ui/portfolio.spec.ts` passes (tile counts == API summary). |
@@ -21,11 +22,11 @@
 | M1 inherited project | IN PROGRESS | upstream `b4f92c9` merged into `main` (`591c836`), original tests intact; baseline 10/20 pass on this checkout (3 runs, identical failure set) |
 | M2 stabilize | IN PROGRESS | refactored suite 32/33, one intermittent dispose ENOENT, cause unknown (fixture trace race or concurrent run in same checkout); 0/12 isolated reruns failed |
 | M3–M5 | NOT STARTED | — |
-| M6 public links | NOT STARTED | practice pipeline proved the route earlier today |
-| M7 STP/defects | IN PROGRESS | `docs/STP.md` v0.1 draft; defect log not yet created |
+| M6 public links | IN PROGRESS | repo + Actions + Pages report live; signed-out browser check by the user pending |
+| M7 STP/defects | PASS (draft final) | `docs/STP.md` v1.0, `docs/DEFECTS_AND_CHANGES.md` |
 | M8 SpiraTest | IN PROGRESS | IN:81 filed 18:55 via Spira MCP (product 35); Jam link pending human recording |
 | M9 video | NOT STARTED | — |
-| M10 AI usage | IN PROGRESS | this session's prompts to be logged in docs/AI_USAGE.md once the repo exists |
+| M10 AI usage | PASS | README section + `docs/AI_USAGE.md` kept during the work |
 | M11 form | NOT STARTED | form URL changed today, see above |
 
 ## Open blockers
