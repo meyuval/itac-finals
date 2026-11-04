@@ -1,0 +1,14 @@
+{
+  "runNumber": "12",
+  "sha": "3d54d98fc56a7c66bc708deaa76e87ac5a52cf66",
+  "repository": "meyuval/itac-finals",
+  "runUrl": "https://github.com/meyuval/itac-finals/actions/runs/41890770389",
+  "conclusion": "success",
+  "finishedAt": "2026-11-04T18:50:16.480Z",
+  "expected": 50,
+  "unexpected": 0,
+  "flaky": 0,
+  "skipped": 0,
+  "durationMs": 70560,
+  "startTime": "2026-11-04T18:49:04.436Z"
+}
