@@ -13,7 +13,6 @@ on:
 
 permissions:
   contents: write # push the published report to the gh-pages branch
-  id-token: write
 
 # Qualifying runs must never be cancelled by a later push: queue them instead.
 concurrency:
@@ -28,9 +27,6 @@ jobs:
       CI: "true"
       STONEWAKE_APP_URL: ${{ vars.STONEWAKE_APP_URL || 'https://app.stonewake.ai' }}
       STONEWAKE_API_URL: ${{ vars.STONEWAKE_API_URL || 'https://api.stonewake.ai' }}
-      STONEWAKE_EMAIL: ${{ secrets.STONEWAKE_EMAIL }}
-      STONEWAKE_PASSWORD: ${{ secrets.STONEWAKE_PASSWORD }}
-      STONEWAKE_API_KEY: ${{ secrets.STONEWAKE_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,12 +44,20 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
+      # Credentials are scoped to the two steps that need them; the publish step never sees them.
       - name: Run Playwright tests (zero retries)
         id: tests
+        env:
+          STONEWAKE_EMAIL: ${{ secrets.STONEWAKE_EMAIL }}
+          STONEWAKE_PASSWORD: ${{ secrets.STONEWAKE_PASSWORD }}
+          STONEWAKE_API_KEY: ${{ secrets.STONEWAKE_API_KEY }}
         run: npx playwright test
 
       - name: Fail if the HTML report contains credentials
         if: ${{ !cancelled() }}
+        env:
+          STONEWAKE_PASSWORD: ${{ secrets.STONEWAKE_PASSWORD }}
+          STONEWAKE_API_KEY: ${{ secrets.STONEWAKE_API_KEY }}
         run: |
           for secret in "$STONEWAKE_API_KEY" "$STONEWAKE_PASSWORD" "swk_live_"; do
             if [ -n "$secret" ] && grep -rqF -- "$secret" playwright-report; then
@@ -81,7 +85,7 @@ jobs:
 
       - name: Publish report to GitHub Pages (gh-pages branch)
         if: ${{ !cancelled() }}
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
