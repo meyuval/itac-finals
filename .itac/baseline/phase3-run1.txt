@@ -1,0 +1,30 @@
+
+Running 24 tests using 4 workers
+
+  ok  4 [api] › tests\backend\health-and-auth.spec.ts:10:7 › API: health and authentication boundary › public health endpoint reports the running app (376ms)
+  ok  2 [api] › tests\backend\entities.spec.ts:6:7 › API: institutions (entities) › list items are typed and the detail route returns the same institution (588ms)
+  ok  1 [api] › tests\backend\entities.spec.ts:26:7 › API: institutions (entities) › unknown, malformed and unauthenticated lookups fail with the documented codes (714ms)
+  ok  5 [api] › tests\backend\health-and-auth.spec.ts:21:7 › API: health and authentication boundary › API key identity exposes credential, role, team scope and rate-limit headers (384ms)
+  ok  3 [api] › tests\backend\countries.spec.ts:5:7 › API: countries › list covers the world, Germany resolves with its codes, region and risk score (1.0s)
+  ok  6 [api] › tests\backend\health-and-auth.spec.ts:40:7 › API: health and authentication boundary › rate-limit remaining decreases between two consecutive keyed calls (458ms)
+  ok  7 [api] › tests\backend\health-and-auth.spec.ts:54:7 › API: health and authentication boundary › every protected route rejects a missing credential with a uniform 401 (391ms)
+  ok  8 [api] › tests\backend\health-and-auth.spec.ts:69:7 › API: health and authentication boundary › malformed and unknown credentials are rejected with the same 401 body (786ms)
+  ok 11 [api] › tests\backend\portfolio.spec.ts:59:7 › API: portfolio (monitored book) › summary status buckets add up to the active exposures reported by the list (496ms)
+  ok 10 [api] › tests\backend\portfolio.spec.ts:39:7 › API: portfolio (monitored book) › offset pagination returns disjoint consecutive pages that agree with the total (636ms)
+  ok  9 [api] › tests\backend\portfolio.spec.ts:7:7 › API: portfolio (monitored book) › list is paginated, typed and validates the limit bound (990ms)
+  ok 12 [api] › tests\backend\search.spec.ts:7:7 › API: search › search returns scored hits, an empty list for nonsense, and validates its inputs (958ms)
+  ok 15 [chromium] › tests\ui\auth.spec.ts:37:7 › UI: authentication › sign-in stays disabled until the evaluation terms are accepted (3.1s)
+  ok 14 [chromium] › tests\ui\auth.spec.ts:26:7 › UI: authentication › wrong password keeps the user on the sign-in page with a clear message (4.4s)
+  ok 13 [chromium] › tests\ui\auth.spec.ts:7:7 › UI: authentication › password sign-in lands on the Deal Book with the module sidebar (5.2s)
+  ok 16 [chromium] › tests\ui\auth.spec.ts:56:7 › UI: authentication › protected routes redirect an anonymous visitor to sign-in (4.2s)
+  ok 17 [chromium] › tests\ui\auth.spec.ts:66:7 › UI: authentication › sign-out ends the session and protected routes redirect again (6.2s)
+  ok 19 [chromium] › tests\ui\countries.spec.ts:27:7 › UI: Countries › country name shown in the dashboard matches the API record (10.9s)
+  ok 20 [chromium] › tests\ui\deal-book.spec.ts:5:7 › UI: Deal Book › search narrows the deal list and a deal opens with its briefing (9.3s)
+  ok 18 [chromium] › tests\ui\countries.spec.ts:5:7 › UI: Countries › search finds Germany, the country page shows risk and sources, unknown codes 404 (12.4s)
+  ok 22 [chromium] › tests\ui\navigation.spec.ts:27:7 › UI: sidebar navigation › every sidebar module opens its route and shows its heading (8.0s)
+  ok 21 [chromium] › tests\ui\institutions.spec.ts:5:7 › UI: Institutions › search isolates UK Export Finance and opens its institution page (14.1s)
+  ok 23 [chromium] › tests\ui\navigation.spec.ts:36:7 › UI: sidebar navigation › EDD Dossiers and Signals pages exist by URL but are not linked from the sidebar (8.4s)
+  ok 24 [chromium] › tests\ui\portfolio.spec.ts:6:7 › UI: Portfolio › status tiles are shown and a monitored row opens its institution page (10.5s)
+
+  24 passed (31.4s)
+exit=0

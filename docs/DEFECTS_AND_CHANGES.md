@@ -25,7 +25,7 @@ Category key: **A** = automation (test) defect, **P** = product/workspace behavi
 | 5 | api 10 search | 422 message says "less than or equal to 25"; test expected 50 (OpenAPI: max 25) | stale expectation | A | bound taken from `API_LIMITS.searchMax` |
 | 6 | ui 1 login ok | login page has no `#email`; textbox is named "Email" | brittle id selector | A | `getByRole('textbox', { name: 'Email' })`; dropped a 2 s sleep and a non-web-first URL check |
 | 7 | ui 3 terms checkbox | native `input[type=checkbox]` is `aria-hidden`; the visible control is a `role=checkbox` button | wrong element | A | `getByRole('checkbox', { name: /Evaluation Terms/ })` + `toBeChecked()` |
-| 8 | ui 6 sidebar | sidebar in workspace *itac-ja* has Deal Book, Tenders, Countries, Institutions, Network, Monitoring, Portfolio, Screenings, Scoring; no "EDD Dossier" | module not enabled for this workspace (changelog 4 Nov lists EDD Dossiers as a sidebar entry) | P/U | navigation test covers the nine modules that exist; EDD Dossiers noted as a question for the organizers, not asserted |
+| 8 | ui 6 sidebar | sidebar in workspace *itac-ja* has Deal Book, Tenders, Countries, Institutions, Network, Monitoring, Portfolio, Screenings, Scoring; no "EDD Dossier" link. Live audit 19:05: `/dossiers` renders "EDD Dossiers" and `/signals` renders "Signals" | page exists, sidebar entry missing (changelog 4 Nov lists it) | **P** (confirmed, IN:83) | sidebar test covers the nine linked modules; a second test opens `/dossiers` and `/signals` by URL, asserts their headings and asserts the sidebar link is absent, so the inherited destination is still verified and the defect is documented, not hidden |
 | 9 | ui 7 deal book | deal rows link to `/deals/<id>`; test looked for `/deal/` | wrong href prefix | A | `/deals/`; dropped a 3 s sleep |
 | 10 | ui 10 portfolio | DOM has `data-testid="tile-not_assessed"`; test used `tile-not-assessed` | wrong test id (product uses an underscore while the other four tiles use plain words) | A (+ product observation) | use the real id; naming inconsistency reported, see §4 |
 
@@ -44,12 +44,48 @@ Negative control: with the fix in place, flipping `DE` back to `GE` makes api 9 
 
 Mapping of inherited tests to new files: api 1–4 → `tests/backend/health-and-auth.spec.ts`; api 5–6 → `portfolio.spec.ts`; api 7–8 → `entities.spec.ts`; api 9 → `countries.spec.ts`; api 10 → `search.spec.ts`; ui 1–5 → `tests/ui/auth.spec.ts`; ui 6 → `navigation.spec.ts`; ui 7 → `deal-book.spec.ts`; ui 8 → `countries.spec.ts`; ui 9 → `institutions.spec.ts`; ui 10 → `portfolio.spec.ts`. Each test carries an `// inherited: …` comment.
 
+### Traceability: every inherited test and its assertions (verified 4 Nov 19:05 by script against commit `b4f92c9`)
+
+Static `expect(` counts; loops in the new code execute more assertions than they contain statically (noted in the last column).
+
+| Inherited test | New spec | Assertions old → new | Note |
+|---|---|---|---|
+| api 1 health | `backend/health-and-auth.spec.ts` | 6 → 6 | path fixed |
+| api 2 me | same | 11 → 10 | `typeof role === 'string'` subsumed by `toMatch(/^[a-z_]+$/)` |
+| api 3 no token | same | 10 → 2 static (10 executed: 5 routes × 2) | loop |
+| api 4 bad keys | same | 7 → 4 static (8 executed) | loop over three bad headers |
+| api 5 portfolio list | `backend/portfolio.spec.ts` | 18 → 17 static (18 executed) | `items` field |
+| api 6 portfolio summary | same | 7 → 8 | status asserted before body |
+| api 7 entities | `backend/entities.spec.ts` | 11 → 11 | |
+| api 8 entity not found | same | 8 → 8 | |
+| api 9 countries | `backend/countries.spec.ts` | 14 → 15 | `toBeDefined()` guard added, iso2 `DE` |
+| api 10 search | `backend/search.spec.ts` | 14 → 15 | limit 25 from spec |
+| ui 1 login ok | `ui/auth.spec.ts` | 10 → 11 | sleep removed, `toHaveURL` |
+| ui 2 wrong password | same | 4 → 4 | |
+| ui 3 terms checkbox | same | 5 → 7 | `toBeChecked` added |
+| ui 4 not logged in redirect | same | 5 → 3 static (9 executed: 4 routes × 2 + 1) | loop |
+| ui 5 logout | same | 3 → 4 | |
+| ui 6 sidebar | `ui/navigation.spec.ts` | 7 → 2 static (16 executed: 8 modules × 2) | EDD Dossier (absent) replaced by Tenders + Network |
+| ui 7 deal book search | `ui/deal-book.spec.ts` | 5 → 9 | href shape and empty-list assertions added |
+| ui 8 countries | `ui/countries.spec.ts` | 7 → 8 | |
+| ui 9 institutions | `ui/institutions.spec.ts` | 7 → 8 | |
+| ui 10 portfolio | `ui/portfolio.spec.ts` | 8 → 6 static (10 executed: 5 tiles) | `tile-not_assessed`, query string tolerated |
+
+Result: 20 of 20 inherited tests mapped, none dropped, no assertion weakened; 3 new tests plus the EDD Dossiers/Signals URL test; 24 discovered (`npx playwright test --list`).
+
+### Audit of the two intentional content changes (requested 4 Nov 19:05)
+
+| Change | Evidence checked | Verdict | Action |
+|---|---|---|---|
+| ui 6: sidebar click on "EDD Dossier" removed | Live sidebar link list has no such link; `/dossiers` renders heading "EDD Dossiers"; `/signals` renders "Signals"; `/edd` and `/reports` are 404 | The destination was valid; only the link is missing. Dropping the destination would have lost intent. | Added a test that opens the two pages by URL, asserts the headings and asserts the links are absent. Product defect filed as IN:83. |
+| api 2: `typeof role === 'string'` removed, `toMatch(/^[a-z_]+$/)` kept | `expect(123).toMatch(/…/)` throws in Playwright 1.64.1 ("received value must be a string") | The regex assertion subsumes the type check; no coverage lost. | None. |
+
 ## 4. Product observations (candidates for SpiraTest; file only what is confirmed)
 
 | ID | Observation | Evidence | Status |
 |---|---|---|---|
-| P-1 | Portfolio tile test ids are inconsistent: `tile-red`, `tile-amber`, `tile-green`, `tile-insufficient` but `tile-not_assessed` | DOM in trace of baseline run; API status enum uses `not_assessed` | Low severity (test-hook naming); SpiraTest ID: _pending_ |
-| P-2 | "EDD Dossiers" module absent from the sidebar of the competition workspace although the 4 Nov changelog lists it | baseline snapshot of ui 6; `.itac/sut-docs/changelog.md` | Unknown whether intended (feature flag); question for organizers |
+| P-1 | Portfolio tile test ids are inconsistent: `tile-red`, `tile-amber`, `tile-green`, `tile-insufficient` but `tile-not_assessed` | DOM in trace of baseline run; API status enum uses `not_assessed` | Filed in SpiraTest as **IN:82** (product "Yuval Menashe", severity 4 - Low) at ~19:02 on 4 Nov 2026 |
+| P-2 | "EDD Dossiers" and "Signals" pages exist (`/dossiers`, `/signals`) but have no sidebar entry although the 4 Nov changelog lists them | baseline snapshot of ui 6; live script 19:05 (sidebar link list + page titles); test `navigation.spec.ts` | Filed in SpiraTest as **IN:83** (severity 3 - Medium) at ~19:08; organizers may close as intentional |
 | P-3 | Portfolio row navigation appends `?from=portfolio` to the institution URL | run `phase2-run1` | Informational, not a defect |
 
 ## 5. Residual risks and known limitations

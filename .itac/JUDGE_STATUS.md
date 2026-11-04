@@ -15,6 +15,8 @@
 | 18:46 | CI workflow finalised in `stonewake-final-repo/.github/workflows/playwright.yml` (uncommitted): typecheck → tests (retries 0) → stamp run/SHA → secret scan (fails publish if API key/password appear in report; positive control detected a planted key) → job summary (counts + per-test table + links) → artifact + GitHub Pages deploy from default branch. Config: CI `trace: 'off'` (traces carry Authorization header/typed password; also removes suspected dispose-ENOENT source) + JSON reporter. Local `CI=true` run: **33/33 passed, 37.5 s, 0 retries, 0 trace zips**. Not yet: repo secrets, Pages enable (API 404), push, any CI run. |
 | 18:47 | Repo secrets STONEWAKE_EMAIL/PASSWORD/API_KEY set on meyuval/stonewake-final-repo (`gh secret list` confirms, 16:47Z). Pages API still 404 on the fork (not enabled). Refactor still in progress; nothing pushed. |
 | 18:48 | CONFLICT: a second workflow appeared at root `.github/workflows/playwright.yml` (18:47:11, other session; repo itac-finals/main, peaceiris/actions-gh-pages@v4 unpinned, contents:write, job-level secrets, publish not gated on its credential scan). Fork workflow (`stonewake-final-repo/`) hardened: secrets scoped to test + scan steps only; first-party actions only. One pipeline must be chosen for submission. |
+| 18:50–19:02 | Jam recorded by an automated Chromium through a Jam recording link (Jam MCP has no capture tool; no connected domain so no logs). First attempt captured the whole screen because the tab-title flag did not match; it was never persisted as a Jam (link lists one Jam only). Second attempt, tab-only: https://jam.dev/c/ec59a5c7-7b62-4431-ad46-8dbd12b42303 . Attached to IN:81 ("Link to Jam.Dev video"). |
+| 19:00–19:05 | The 18:59 Jam showed the full API key in Swagger's generated curl panel (only the input had been masked). Deleted it (own recording, minutes old) and re-recorded with the curl panel hidden: https://jam.dev/c/ec59a5c7-7b62-4431-ad46-8dbd12b42303 . IN:81 updated to the new link. |
 
 ## M1–M11 status
 | ID | Status | Evidence |
@@ -24,7 +26,7 @@
 | M3–M5 | NOT STARTED | — |
 | M6 public links | IN PROGRESS | repo + Actions + Pages report live; signed-out browser check by the user pending |
 | M7 STP/defects | PASS (draft final) | `docs/STP.md` v1.0, `docs/DEFECTS_AND_CHANGES.md` |
-| M8 SpiraTest | IN PROGRESS | IN:81 filed 18:55 via Spira MCP (product 35); Jam link pending human recording |
+| M8 SpiraTest | PASS (1 bug) | IN:81 filed 18:55 via Spira MCP (product 35) with Jam https://jam.dev/c/ec59a5c7-7b62-4431-ad46-8dbd12b42303 attached 19:02 |
 | M9 video | NOT STARTED | — |
 | M10 AI usage | PASS | README section + `docs/AI_USAGE.md` kept during the work |
 | M11 form | NOT STARTED | form URL changed today, see above |

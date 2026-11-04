@@ -18,15 +18,15 @@ extended on 4 Nov 2026 by Yuval Menashe.
 
 | | Inherited (commit `b4f92c9`) | Now |
 |---|---|---|
-| Tests | 10 API + 10 UI in two flat files | 23 (20 inherited scenarios preserved + 3 new) in 11 files, two projects |
-| Local result, retries 0 | 10 failed / 10 passed (3.1 min) | 23 passed (about 40 s locally, 2 workers in CI) |
+| Tests | 10 API + 10 UI in two flat files | 24 (20 inherited scenarios preserved + 4 new) in 11 files, two projects |
+| Local result, retries 0 | 10 failed / 10 passed (3.1 min) | 24 passed (about 40 s locally, 2 workers in CI) |
 | Secrets | `.env`, API key and password committed and hardcoded | environment / GitHub secrets only; report scanned for credentials before publishing |
 | Waits | 3 fixed sleeps, `page.url()` checks | web-first assertions only |
 | Structure | none | infrastructure / business / tests layers, fixtures, page objects |
 | CI | artifact only (login required), `cancel-in-progress` | queued runs, type-check, public report on GitHub Pages stamped with run + SHA |
 
 All ten inherited failures were deterministic test defects (wrong path, auth scheme, field name, expected value, selector),
-except one sidebar entry that does not exist in the competition workspace. Details and evidence: `docs/DEFECTS_AND_CHANGES.md`.
+except one sidebar link that is not rendered in the competition workspace although its page exists (filed as SpiraTest IN:83). Details and evidence: `docs/DEFECTS_AND_CHANGES.md`.
 
 ## Setup and run
 
@@ -96,7 +96,7 @@ the run, the commit and the result. The site index lists every published run. Ru
 - The inherited git history still contains the original `.env` and trace files; history was not rewritten to keep
   provenance. The organizers have been asked to rotate those credentials.
 - Tests run against the live, shared competition workspace; one inherited test relies on institution `/entities/4`.
-- "EDD Dossiers" is listed in the product changelog but not offered in this workspace, so it is not covered.
+- "EDD Dossiers" and "Signals" have no sidebar link in this workspace; their pages are covered by direct URL and the missing link is filed as SpiraTest IN:83.
 
 ## AI usage
 

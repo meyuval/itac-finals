@@ -13,7 +13,7 @@
 The inherited Playwright + TypeScript project had 20 tests in two flat files; 10 failed deterministically because of
 test defects (wrong path, auth scheme, field name, expected value, selectors), credentials were committed, and there was
 no structure, no configuration injection and no public report. This plan covers the stabilised and refactored suite:
-23 tests (20 inherited scenarios preserved, 3 added), two Playwright projects (`api`, `chromium`), retries 0, secrets
+24 tests (20 inherited scenarios preserved, 4 added), two Playwright projects (`api`, `chromium`), retries 0, secrets
 injected from the environment, GitHub Actions with a public GitHub Pages report, and the evidence rules that make
 "green" mean something. Evidence for the five consecutive green runs is kept in `.itac/FIVE_GREEN.md`.
 
@@ -66,7 +66,8 @@ their original intent and carry an `// inherited: …` comment in code.
 | Auth | Sign in disabled until terms accepted; toggle back disables | N | inherited ui 3 | same |
 | Auth | anonymous access to `/`, `/portfolio`, `/countries/DEU`, `/entities` redirects | X | inherited ui 4 | same |
 | Auth | sign-out ends session; protected route redirects again | X | inherited ui 5 | same |
-| Shell | each sidebar module opens its route and heading | S | inherited ui 6 (adapted to the nine modules present) | `navigation.spec.ts` |
+| Shell | each sidebar module opens its route and heading | S | inherited ui 6 (nine linked modules) | `navigation.spec.ts` |
+| Shell | EDD Dossiers and Signals open by URL with their headings; sidebar link absent (documents IN:83) | P/D | inherited ui 6 destination, **new** test | same |
 | Deal Book | filters visible, Deals tab selected, nonsense search → "No matching deals", deal opens with Briefing | P/N | inherited ui 7 | `deal-book.spec.ts` |
 | Countries | search Germany → DEU page with Country risk and Data sources; nonsense search → none; ZZZ → not found | P/N | inherited ui 8 | `countries.spec.ts` |
 | Countries | dashboard name and risk score equal the API record | D | **new** | same |
@@ -128,13 +129,13 @@ Retries are disabled so a flaky test cannot hide behind a rerun.
 
 ## 10. Entry and exit criteria
 
-Entry: secrets present, `npm run typecheck` clean, suite discovers 23 tests in two projects.
+Entry: secrets present, `npm run typecheck` clean, suite discovers 24 tests in two projects.
 Exit (certification): five consecutive successful full-suite GitHub Actions runs on one commit, retries 0, 0 skipped,
-0 flaky, each with a public report; recorded with run URLs, SHA and timestamps in `.itac/FIVE_GREEN.md`.
+0 flaky, 24 passed, each with a public report; recorded with run URLs, SHA and timestamps in `.itac/FIVE_GREEN.md`.
 
 ## 11. Defects, risks, known limitations
 
-- Root causes of the ten inherited failures, product observations (P-1 test-id inconsistency, P-2 EDD Dossiers absent,
+- Root causes of the ten inherited failures, product observations (P-1 test-id inconsistency → IN:82, P-2 EDD Dossiers/Signals unlinked → IN:83,
   P-3 `?from=portfolio`) and residual risks: `docs/DEFECTS_AND_CHANGES.md`.
 - Next coverage, in priority order: screenings read with sources; network/ownership chain via API; monitoring settings;
   deal exports (content-type and size); MCP `tools/list` and one data tool; axe-core smoke on login and Deal Book.
