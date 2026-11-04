@@ -1,7 +1,20 @@
-# Playwright
+# Dependencies
+node_modules/
+
+# Secrets (keep .env.example)
+.env
+.env.*
+!.env.example
+playwright/.auth/
+
+# Generated test output
+/test-results/
+/playwright-report/
 /blob-report/
 /playwright/.cache/
-/playwright/.auth/
 
-# Secrets
+# Local-only workspace artefacts
 .playwright-mcp/
+stonewake-final-repo/
+.probe/
+.claude/settings.local.json

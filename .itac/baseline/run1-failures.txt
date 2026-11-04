@@ -1,0 +1,88 @@
+##### 1) tests\api.spec.ts:5:5 › api 1 health ──────────────────────────────────────────────────────────
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 200
+    Received: 404
+    >  7 |   expect(r.status()).toBe(200);
+       9 |   expect(Object.keys(b).sort()).toEqual(['app', 'environment', 'status', 'version']);
+      10 |   expect(b.status).toBe('ok');
+
+##### 2) tests\api.spec.ts:16:5 › api 2 me ─────────────────────────────────────────────────────────────
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 200
+    Received: 401
+    > 18 |   expect(r.status()).toBe(200);
+      21 |   expect(b.credential).toBe('api_key');
+
+##### 3) tests\api.spec.ts:69:5 › api 5 portfolio list ─────────────────────────────────────────────────
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: true
+    Received: false
+      71 |   expect(r.status()).toBe(200);
+    > 73 |   expect(Array.isArray(b.data)).toBe(true);
+      75 |   expect(b.limit).toBe(2);
+      76 |   expect(b.offset).toBe(0);
+
+##### 4) tests\api.spec.ts:152:5 › api 9 countries ─────────────────────────────────────────────────────
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: "GE"
+    Received: "DE"
+      167 |   expect(d.iso3).toBe('DEU');
+    > 168 |   expect(d.iso2).toBe('GE');
+      169 |   expect(d.name).toBe('Germany');
+      170 |   expect(d.region).toBe('europe');
+
+##### 5) tests\api.spec.ts:177:5 › api 10 search ───────────────────────────────────────────────────────
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: "Input should be less than or equal to 50"
+    Received: "Input should be less than or equal to 25"
+      198 |   expect(r5.status()).toBe(422);
+    > 199 |   expect((await r5.json()).detail[0].msg).toBe('Input should be less than or equal to 50');
+
+##### 6) tests\ui.spec.ts:6:5 › ui 1 login ok ──────────────────────────────────────────────────────────
+    Error: page.fill: Test timeout of 30000ms exceeded.
+      - waiting for locator('#email')
+
+##### 7) tests\ui.spec.ts:38:5 › ui 3 terms checkbox ───────────────────────────────────────────────────
+    Error: page.check: Test timeout of 30000ms exceeded.
+      - waiting for locator('input[type="checkbox"]')
+        - locator resolved to <input value="on" tabindex="-1" type="checkbox" aria-hidden="true"/>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        54 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+
+##### 8) tests\ui.spec.ts:83:5 › ui 6 sidebar ──────────────────────────────────────────────────────────
+    Error: page.click: Test timeout of 30000ms exceeded.
+      - waiting for locator('//aside//a[normalize-space(.)="EDD Dossier"]')
+
+##### 9) tests\ui.spec.ts:113:5 › ui 7 deal book search ────────────────────────────────────────────────
+    Error: expect(locator).toBeVisible() failed
+    Locator: locator('main a[href^=\'/deal/\']').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+      - Expect "toBeVisible" locator('main a[href^=\'/deal/\']').first() with timeout 5000ms
+      - waiting for locator('main a[href^=\'/deal/\']').first()
+
+##### 10) tests\ui.spec.ts:178:5 › ui 10 portfolio ─────────────────────────────────────────────────────
+    Error: expect(locator).toBeVisible() failed
+    Locator: locator('[data-testid="tile-not-assessed"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+      - Expect "toBeVisible" locator('[data-testid="tile-not-assessed"]') with timeout 5000ms
+      - waiting for locator('[data-testid="tile-not-assessed"]')
+

@@ -1,0 +1,30 @@
+# ITAC 2026 final — judge status ledger
+
+| Time (Asia/Jerusalem) | Event |
+|---|---|
+| 17:25 | ITAC email names SUT = Stonewake and a new submission form https://forms.gle/TuATq3R2cu8hL8yY9 |
+| 17:40 | Draft STP v0.1 written at `docs/STP.md` from public docs (unknowns marked). |
+| 17:33–17:37 | Public surfaces probed (site, docs, API, MCP). Brief in `.itac/SUT_BRIEF.md`. No account/invite yet. Inherited project not received yet. |
+| 18:05 | Inherited project received: https://github.com/AlexKomanov/stonewake-final-repo (branch `master`, single commit `b4f92c9`). Merged into local `main` as merge commit `591c836` (`upstream` remote added; nothing pushed yet). Baseline: 10 API + 10 UI tests, Playwright 1.64.1, workflow `.github/workflows/playwright.yml` (artifact upload only, no Pages). Inherited repo tracks `.env` with live credentials, `node_modules` (329 files), `playwright-report/` and `test-results/` — must be untracked before any public push. |
+| 18:14 | Inherited README requires working in a GitHub fork. Fork created: https://github.com/meyuval/stonewake-final-repo (public, `isFork: true`, default branch `master`), added as remote `fork`. Local `main` fast-forwards onto `fork/master`; nothing pushed yet. Submission repo = the fork. Baseline `.last-run.json` from upstream: 10/20 failed (api 1,2,5,9,10; ui 1,3,6,7,10). |
+| 18:10–18:16 | Baseline run (root, `591c836`, after `npm ci`; the committed `node_modules` was partial and gave "did not expect test() to be called here"): **10 passed / 10 failed**, same set as runs 1–2 (api 1,2,5,9,10; ui 1,3,6,7,10). Log `.itac/baseline/run3-baseline.log`. Refactored suite (`stonewake-final-repo/`, uncommitted on `b4f92c9`): **32 passed / 1 failed of 33**, 51.7 s, retries 0. The failure is infrastructure, not an assertion: `apiRequestContext.dispose: ENOENT ...traces/*.network` from the custom `api` fixture under `trace: retain-on-failure`; reproduced 1 of 3 reruns of `tests/api/portfolio.spec.ts`. Log `stonewake-final-repo/.itac/runs/refactored-run1.log`. |
+| 18:16–18:27 | FP/FN audit. Baseline: all 10 failures are test defects, none product bugs (api 1 `/v1/health` vs `/health`; api 2 `Token` scheme vs Bearer; api 5 `data` vs `items`; api 9 iso2 `GE` vs `DE`; api 10 search limit max 50 vs 25 per OpenAPI; ui 1 `#email` has no id; ui 3 `input[type=checkbox]` is a hidden proxy (opacity 0, pointer-events none) behind `button[role=checkbox]`; ui 6 sidebar has no `EDD Dossier` entry in this workspace, `/dossiers` route works; ui 7 `/deal/` vs `/deals/`; ui 10 `tile-not-assessed` vs `tile-not_assessed`). Refactored suite: no skip/only/fixme/sleeps; no vacuous passes found (book total 25, 50 deal links, empty states have exact text). Dispose ENOENT not reproduced in 12 isolated reruns (6 with trace, 6 `--trace off`); root cause UNKNOWN: trace race in custom `api` fixture vs a concurrent run in the same checkout (files edited 18:10:30 and 18:11:47 by another session during my run). Rewritten `tests/ui/portfolio.spec.ts` passes (tile counts == API summary). |
+| 18:19–18:35 | Signed in as Finalist 5 (workspace itac-5) by hand and probed `/v1/me`, portfolio, deals, countries, search, screenings, monitoring, watches with the finalist key (read-only). Test plan v1.0 DRAFT written at `docs/test-plan.html` (UI + API, risk-ranked, parity layer, five-green protocol, timeline). Nothing implemented from it yet. Product-bug candidates noted: API mojibake in deal names/legal_form_label, deal page title, 5-tile portfolio strip, MCP tool count vs docs. |
+
+## M1–M11 status
+| ID | Status | Evidence |
+|---|---|---|
+| M1 inherited project | IN PROGRESS | upstream `b4f92c9` merged into `main` (`591c836`), original tests intact; baseline 10/20 pass on this checkout (3 runs, identical failure set) |
+| M2 stabilize | IN PROGRESS | refactored suite 32/33, one intermittent dispose ENOENT, cause unknown (fixture trace race or concurrent run in same checkout); 0/12 isolated reruns failed |
+| M3–M5 | NOT STARTED | — |
+| M6 public links | NOT STARTED | practice pipeline proved the route earlier today |
+| M7 STP/defects | IN PROGRESS | `docs/STP.md` v0.1 draft; defect log not yet created |
+| M8 SpiraTest | UNVERIFIED | login not yet confirmed this session |
+| M9 video | NOT STARTED | — |
+| M10 AI usage | IN PROGRESS | this session's prompts to be logged in docs/AI_USAGE.md once the repo exists |
+| M11 form | NOT STARTED | form URL changed today, see above |
+
+## Open blockers
+- Stonewake invite email (check inbox/spam; else judges).
+- `.env` with real credentials is committed upstream, and the same API key, email and password are hardcoded as literals in `tests/api.spec.ts` and `tests/ui.spec.ts`: untrack `.env`, move the specs to `process.env`, and push only after that. The values are already public in the upstream repo, so ask the judges whether the key/password will be rotated.
+- Q&A 17:50–18:00 candidate questions: (a) must the five green runs be GitHub Actions runs or may local runs count; (b) which submission form is authoritative (4 Nov link vs 20 Oct link); (c) does each contestant get an API key, or only a workspace admin can create one; (d) is the competition workspace a sandbox with person data switched off; (e) is Stonewake's MCP server in scope for automated tests and is it rate-limited per competition IP.

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stonewake Test Plan v1.0 DRAFT · ITAC 2026 final</title>
+<style>
+  :root { --ink:#1b1f24; --muted:#5b6470; --line:#d9dee5; --bg:#ffffff; --soft:#f4f6f8; --accent:#1f5f8b; --p1:#b42318; --p2:#b54708; --p3:#067647; --warn:#7a2e0e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color:var(--ink); background:var(--bg); }
+  header { background:var(--soft); border-bottom:1px solid var(--line); padding:28px 40px; }
+  header h1 { margin:0 0 6px; font-size:26px; }
+  header .meta { color:var(--muted); font-size:14px; }
+  header .meta b { color:var(--ink); }
+  .wrap { display:grid; grid-template-columns:260px 1fr; gap:0; }
+  nav { position:sticky; top:0; align-self:start; height:100vh; overflow:auto; padding:20px 16px; border-right:1px solid var(--line); font-size:13.5px; }
+  nav a { display:block; color:var(--accent); text-decoration:none; padding:3px 0; }
+  nav a.sub { padding-left:14px; color:var(--muted); }
+  main { padding:24px 40px 80px; max-width:1200px; }
+  h2 { font-size:21px; margin:40px 0 10px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+  h3 { font-size:17px; margin:26px 0 8px; }
+  h4 { font-size:15px; margin:18px 0 6px; color:var(--muted); }
+  p { margin:8px 0; }
+  table { border-collapse:collapse; width:100%; margin:10px 0 18px; font-size:13.5px; }
+  th, td { border:1px solid var(--line); padding:6px 8px; vertical-align:top; text-align:left; }
+  th { background:var(--soft); font-weight:600; }
+  tr:nth-child(even) td { background:#fbfcfd; }
+  code { font-family: ui-monospace, Consolas, "Courier New", monospace; font-size:12.5px; background:#eef1f4; padding:1px 4px; border-radius:3px; }
+  pre { background:#0f172a; color:#e2e8f0; padding:12px 14px; border-radius:6px; overflow:auto; font-size:12.5px; }
+  .tag { display:inline-block; font-size:11.5px; padding:1px 7px; border-radius:10px; border:1px solid var(--line); background:#fff; white-space:nowrap; }
+  .P1 { color:#fff; background:var(--p1); border-color:var(--p1); }
+  .P2 { color:#fff; background:var(--p2); border-color:var(--p2); }
+  .P3 { color:#fff; background:var(--p3); border-color:var(--p3); }
+  .callout { border-left:4px solid var(--accent); background:var(--soft); padding:10px 14px; margin:12px 0; }
+  .callout.warn { border-left-color:var(--p1); background:#fff5f3; }
+  .callout.ok { border-left-color:var(--p3); background:#f1faf5; }
+  .kv { display:grid; grid-template-columns:220px 1fr; gap:4px 12px; font-size:14px; }
+  .kv div:nth-child(odd) { color:var(--muted); }
+  ul { margin:6px 0 10px 22px; }
+  li { margin:3px 0; }
+  .small { font-size:12.5px; color:var(--muted); }
+  .status-inh { color:#475467; }
+  .status-new { color:#065f46; font-weight:600; }
+  @media print { nav { display:none; } .wrap { grid-template-columns:1fr; } main { padding:10px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Stonewake · Test Plan (UI + API) · ITAC 2026 final</h1>
+  <div class="meta">
+    Version <b>1.0 DRAFT for review</b> · Written 4 Nov 2026, 18:30 Asia/Jerusalem · Author: Yuval Menashe, drafted with Claude Code (Fable 5.1) ·
+    Status: <b>plan only, nothing implemented from this document yet</b> · Supersedes <code>docs/STP.md</code> v0.1 once approved
+  </div>
+</header>
+
+<div class="wrap">
+<nav>
+  <a href="#s1">1. Executive summary</a>
+  <a href="#s2">2. What was verified today</a>
+  <a href="#s3">3. Inherited project: baseline and root causes</a>
+  <a href="#s4">4. Judge acceptance mapping (M1–M11)</a>
+  <a href="#s5">5. Scope, assumptions, exclusions</a>
+  <a href="#s6">6. Risk priorities</a>
+  <a href="#s7">7. Test architecture</a>
+  <a href="#s8">8. UI test plan</a>
+  <a class="sub" href="#s8-auth">8.1 Authentication</a>
+  <a class="sub" href="#s8-nav">8.2 Shell and navigation</a>
+  <a class="sub" href="#s8-db">8.3 Deal Book</a>
+  <a class="sub" href="#s8-scr">8.4 Screenings</a>
+  <a class="sub" href="#s8-net">8.5 Network and Institutions</a>
+  <a class="sub" href="#s8-cty">8.6 Countries</a>
+  <a class="sub" href="#s8-pf">8.7 Monitoring and Portfolio</a>
+  <a href="#s9">9. API test plan</a>
+  <a class="sub" href="#s9-auth">9.1 Auth boundary and headers</a>
+  <a class="sub" href="#s9-pf">9.2 Portfolio</a>
+  <a class="sub" href="#s9-dl">9.3 Deals</a>
+  <a class="sub" href="#s9-cty">9.4 Countries</a>
+  <a class="sub" href="#s9-en">9.5 Entities, nodes, search</a>
+  <a class="sub" href="#s9-sc">9.6 Screenings, monitoring, watches</a>
+  <a class="sub" href="#s9-nfr">9.7 Security, performance, MCP</a>
+  <a href="#s10">10. Cross-surface parity</a>
+  <a href="#s11">11. Test data and cleanup</a>
+  <a href="#s12">12. Execution, CI and five-green protocol</a>
+  <a href="#s13">13. Flakiness controls and integrity rules</a>
+  <a href="#s14">14. Entry and exit criteria</a>
+  <a href="#s15">15. Defect candidates already observed</a>
+  <a href="#s16">16. Timeline to 21:00</a>
+  <a href="#s17">17. Open questions</a>
+  <a href="#s18">Appendix A. Locator notes per page</a>
+  <a href="#s19">Appendix B. Environment variables</a>
+</nav>
+
+<main>
+
+<h2 id="s1">1. Executive summary</h2>
+<p>We inherited a 20-test Playwright + TypeScript project (10 API, 10 UI) against the live Stonewake product. On a clean checkout it passes <b>10 of 20</b>; the same ten fail on three identical runs, so the failures are deterministic, not flaky. Reading the failures against today's product and docs shows <b>no inherited failure is a product bug</b>: five are wrong expectations in the tests (wrong health path, wrong auth scheme, wrong list key, wrong ISO code, wrong search bound) and five are UI changes the product shipped on 4 Nov (locators, sidebar, deal routes, status tiles).</p>
+<p>The plan has three layers, executed in this order because the judges score stability first:</p>
+<ol>
+  <li><b>Stabilise and secure the inherited 20</b> (keep every original intent, fix root causes, remove committed secrets, switch from Judge 2's account hard-coded in the specs to our own Finalist 5 workspace via environment variables).</li>
+  <li><b>Modernise</b> into three Playwright projects (setup, ui, api) with page objects, one API client, zero retries, a public HTML report on GitHub Pages.</li>
+  <li><b>Extend coverage</b> across the six flows the Stonewake team named, on both surfaces, with UI-to-API parity checks as the distinctive feature. Priority P1 cases are the ones we commit to before freeze; P2 and P3 only if time remains.</li>
+</ol>
+<div class="kv">
+  <div>Planned UI cases</div><div>56 scenario rows: 19 derived from the 10 inherited UI tests (some split, intent kept) + 37 new; 28 are P1</div>
+  <div>Planned API cases</div><div>49 scenario rows: 13 derived from the 10 inherited API tests + 34 new + 2 MCP bonus; 23 are P1</div>
+  <div>Certification scope</div><div>Chromium only, <code>retries: 0</code>, 2 workers, GitHub Actions on one frozen SHA, five consecutive green runs</div>
+  <div>Freeze target</div><div>20:15 at the latest (see section 16)</div>
+  <div>Known product-bug candidates</div><div>4, listed in section 15; none filed yet</div>
+</div>
+
+<h2 id="s2">2. What was verified today (facts the plan relies on)</h2>
+<p>Everything below was checked by hand between 17:33 and 18:25 on 4 Nov 2026 with the Finalist 5 account and key. Nothing here is assumed from the docs alone.</p>
+<table>
+  <tr><th>Fact</th><th>Observed value</th><th>Why it matters</th></tr>
+  <tr><td>Workspace and team</td><td>Signed-in sidebar shows team <code>itac-5</code>; other teams visible in the switcher: All teams, Commercial Real Estate, Project Finance</td><td>Every row served to our key carries <code>team_id</code> of itac-5; parity checks must compare the same team</td></tr>
+  <tr><td>API key</td><td><code>GET /v1/me</code>: credential <code>api_key</code>, role <code>viewer</code>, scopes <code>read, reports</code>, expires 13 Nov 2026</td><td>Document downloads over the API are in scope (reports scope); key-management routes should answer 403</td></tr>
+  <tr><td>Rate limit for our key</td><td><code>RateLimit-Policy: "key-minute";q=600;w=60, "workspace-day";q=500000;w=86400</code></td><td>The docs' example says 120/min; the header is the authority. 600/min leaves room for 2 workers; never assert the literal number</td></tr>
+  <tr><td>Health route</td><td><code>GET /health</code> 200 <code>{status, app, version, environment}</code>; <code>GET /v1/health</code> 404 <code>not_found</code></td><td>Inherited test api 1 used the wrong path</td></tr>
+  <tr><td>List envelope</td><td><code>{items, limit, offset, total}</code> on portfolio, deals, screenings, entities, watches, monitoring targets</td><td>Inherited api 5 expected <code>data</code></td></tr>
+  <tr><td>Published bounds</td><td>portfolio <code>limit</code> max 100; search <code>limit</code> max 25; search <code>q</code> min 2 chars</td><td>Inherited api 10 expected 50</td></tr>
+  <tr><td>Germany</td><td><code>iso2 = DE</code>, region <code>europe</code>, risk score 15, breakdown rows carry weight/contribution/citation, <code>gaps[]</code> with reason and sentences</td><td>Inherited api 9 expected <code>GE</code></td></tr>
+  <tr><td>Deal Book (UI)</td><td>h1 "Deal Book", tabs Deals / Following, "Search deals" textbox, comboboxes "All windows" / "All sectors" / "All regions", "Filters" button, Export button, table columns Deal · Financing window · Value · Parties · Score · Last activity, pager "1 to 50 of 146", "311 held back …" with "Show them", row links to <code>/deals/{id}</code></td><td>Inherited ui 7 looked for <code>/deal/</code>; totals are assertion inputs for parity</td></tr>
+  <tr><td>Deal page (UI)</td><td>h1 = deal name, buttons Follow / Dismiss / Download report / Download deck, headings Briefing, Updates (with "n source(s)" buttons), Parties (Screen buttons, "Screen all parties (3)"), Score ("How the score is built"), Key facts, Next step. Document title stays "Deal Book · Stonewake"</td><td>Defines the deal-page assertions and the download tests</td></tr>
+  <tr><td>First-run dialogs</td><td>After sign-in a dialog "Walkthrough, step 1 of 4" with Skip / Next, and an alert "Confirm the terms · Stonewake"</td><td>Must be handled once in the setup project or every click can be intercepted</td></tr>
+  <tr><td>Sidebar modules</td><td>Pipeline: Deal Book, Tenders, Countries, Institutions, Network · Coverage: Monitoring, Portfolio, Screenings, Scoring. No "EDD Dossier" entry (route <code>/dossiers</code> still exists)</td><td>Inherited ui 6 clicked a sidebar link that no longer exists</td></tr>
+  <tr><td>Portfolio (UI)</td><td>Status strip Red 0 · Amber 1 · No score yet 11 · Not yet assessed 0 · Green 13, line "25 active exposures · 8 status changes in 30 days"; no Sole trader tile; Reviews due "25 exposures have no credit review on record"; combobox "Add a company to the monitored book" + Add + Import book; table Company · Status · Score · Attention · Last change; Status changes with "Why the status changed" and "Acknowledge" / "Acknowledge all"</td><td>API summary agrees exactly (green 13, amber 1, insufficient 11, active 25, status_changes_30d 8); inherited ui 10 relied on <code>data-testid="tile-*"</code> that must be re-verified in the DOM</td></tr>
+  <tr><td>Countries (UI)</td><td>Band buttons "High risk … 13 countries", "Elevated … 87 countries", "Moderate … 115 countries", "Unscored 30 countries"; "Search countries" textbox; Export; grouped table by region</td><td>Band counts sum to 245; "Unscored 30" should equal API countries with <code>risk_reason = below_coverage_floor</code></td></tr>
+  <tr><td>Screenings (UI)</td><td>Empty state "Nothing screened yet", button "New screening". API <code>/v1/screenings</code> total 0</td><td>Any screening read test must first create one; the flow is asynchronous</td></tr>
+  <tr><td>Monitoring (UI)</td><td>Settings-style page with text only; no table because <code>/v1/monitoring/targets</code> total is 0. Following is a tab of the Deal Book. <code>/v1/watches</code> total 25, cadence weekly</td><td>Monitoring coverage needs a Follow first</td></tr>
+  <tr><td>Encoding</td><td>API deal name reads <code>Japan Invest 3 LLC â€“ US natural gas …</code>; UI renders "Japan Invest 3 LLC, US natural gas …"; search hit <code>legal_form_label</code> reads <code>SA Ã  conseil …</code></td><td>Product-bug candidate (section 15)</td></tr>
+</table>
+
+<h2 id="s3">3. Inherited project: baseline and root causes</h2>
+<p>Baseline commit <code>b4f92c9</code> (upstream master, merged locally as <code>591c836</code>). Three local runs, identical result each time: 10 passed, 10 failed, runtime 2.5 min, Playwright 1.64.1, workers 2, no retries configured. Log: <code>.itac/baseline/run3-baseline.log</code>.</p>
+<table>
+  <tr><th>Test</th><th>Failure</th><th>Classification</th><th>Planned fix (intent preserved)</th></tr>
+  <tr><td>api 1 health</td><td>404 on <code>/v1/health</code></td><td>Test bug (wrong path)</td><td>Call <code>/health</code>; keep the schema assertion</td></tr>
+  <tr><td>api 2 me</td><td>401</td><td>Test bug (scheme <code>Token</code> instead of <code>Bearer</code>) and Judge 2's key</td><td>Bearer + our key from env; drop <code>console.log</code> of the body (leaks key metadata into public logs)</td></tr>
+  <tr><td>api 5 portfolio list</td><td><code>b.data</code> not an array</td><td>Test bug (envelope is <code>items</code>)</td><td>Assert <code>items</code>; keep limit boundary assertions, verify the 422 message text live</td></tr>
+  <tr><td>api 9 countries</td><td>iso2 "DE" ≠ "GE"</td><td>Test bug (wrong ISO 3166-1 alpha-2)</td><td>Expect DE</td></tr>
+  <tr><td>api 10 search</td><td>limit bound message says 25, test expects 50</td><td>Test bug (bound changed or always 25)</td><td>Expect 25; better, read the bound from <code>openapi.json</code> at test time</td></tr>
+  <tr><td>ui 1 login ok</td><td>timeout on <code>#email</code></td><td>Product UI change (no id on the input)</td><td><code>getByRole('textbox', {name:'Email'})</code>; move login to <code>auth.setup.ts</code></td></tr>
+  <tr><td>ui 3 terms checkbox</td><td>timeout on <code>input[type=checkbox]</code></td><td>Product UI change (custom checkbox; the native input is hidden)</td><td><code>getByRole('checkbox', {name:/I agree/})</code></td></tr>
+  <tr><td>ui 6 sidebar</td><td>no "EDD Dossier" link</td><td>Product change of 4 Nov (sidebar reorganised)</td><td>Assert the nine real modules; keep <code>/dossiers</code> reachable by URL as a separate assertion</td></tr>
+  <tr><td>ui 7 deal book search</td><td>no <code>main a[href^='/deal/']</code></td><td>Product change (routes are <code>/deals/{id}</code>); also the walkthrough dialog overlays the list</td><td>Resolve the first row link by role; dismiss the walkthrough in setup</td></tr>
+  <tr><td>ui 10 portfolio</td><td><code>tile-not-assessed</code> not found</td><td>Product change (status strip re-rendered; tile test ids to be re-checked)</td><td>Assert the five visible status labels and counts by text; keep the "first row opens its company" intent</td></tr>
+</table>
+<h4>Repository hygiene defects (fix before any public push)</h4>
+<ul>
+  <li><b>Secrets committed</b>: <code>.env</code>, plus Judge 2's email, password and live API key hard-coded in both specs. Replace with <code>process.env</code>, gitignore <code>.env</code>, use GitHub Actions secrets. Ask the judges whether that key will be rotated.</li>
+  <li><b>Build output committed</b>: <code>node_modules/</code> (329 files), <code>playwright-report/</code>, <code>test-results/</code>. Untrack and gitignore.</li>
+  <li><b>Config gaps</b>: no <code>baseURL</code>, no <code>expect.timeout</code>, no explicit <code>retries</code>, no <code>forbidOnly</code>, absolute URLs in every test, fixed sleeps (<code>waitForTimeout</code> 1–3 s), XPath/CSS locators, login copy-pasted into 9 of 10 UI tests, hard-coded entity id 4, non-retrying <code>expect(page.url())</code>.</li>
+  <li><b>Workflow</b>: artifact upload only, no public report, no secrets wiring, no run/SHA in the report title.</li>
+</ul>
+<div class="callout ok">A refactored draft (33 tests: 32 pass, 1 infrastructure failure in the api fixture's trace disposal) already exists in the untracked folder <code>stonewake-final-repo/</code>. This plan treats it as the starting point for layer 2; its single failure is an automation bug (ENOENT on trace dispose under <code>retain-on-failure</code>) and is in the P1 fix list.</div>
+
+<h2 id="s4">4. Judge acceptance mapping (M1–M11)</h2>
+<table>
+  <tr><th>ID</th><th>Requirement</th><th>How this plan satisfies it</th></tr>
+  <tr><td>M1</td><td>Start from the provided project</td><td>Upstream commit preserved in history; every inherited test keeps its title intent in the stabilised suite; baseline log kept</td></tr>
+  <tr><td>M2</td><td>Stabilise, reduce flakiness</td><td>Root-cause table above; web-first assertions, storageState auth, walkthrough handled once, no sleeps, retries 0</td></tr>
+  <tr><td>M3</td><td>Modernise and refactor</td><td>Three projects, page objects, API client, typed env, strict TS; modest and reviewable</td></tr>
+  <tr><td>M4</td><td>Increase coverage</td><td>Sections 8–10: risk-ranked scenarios across six flows, UI + API + parity</td></tr>
+  <tr><td>M5</td><td>Five green in a row</td><td>Section 12 protocol: same SHA, zero retries, sequential <code>workflow_dispatch</code>, URLs recorded</td></tr>
+  <tr><td>M6</td><td>Public repo, run and report links</td><td>Pages deployment of the HTML report with run number and SHA in the title; signed-out check by hand</td></tr>
+  <tr><td>M7</td><td>Updated STP, defects and changes</td><td>This document becomes STP v1.0; <code>docs/DEFECTS_AND_CHANGES.md</code> kept during the work</td></tr>
+  <tr><td>M8</td><td>Product bugs in SpiraTest</td><td>Section 15 candidates, each reproduced by hand before filing, Jam.dev capture where possible</td></tr>
+  <tr><td>M9</td><td>Summary video</td><td>Outline in section 16; recorded by a human after the five runs</td></tr>
+  <tr><td>M10</td><td>AI disclosure in README</td><td><code>docs/AI_USAGE.md</code> with prompts and AI-changed areas, linked from README</td></tr>
+  <tr><td>M11</td><td>Form before 21:00</td><td>Timeline reserves 20:50–21:00 for the human submission</td></tr>
+</table>
+
+<h2 id="s5">5. Scope, assumptions, exclusions</h2>
+<h3>In scope</h3>
+<ul>
+  <li>The six recommended flows on the dashboard (<code>app.stonewake.ai</code>) and the same data over the REST API (<code>api.stonewake.ai</code>). MCP only as a light bonus (section 9.7).</li>
+  <li>Positive, negative/boundary, state (create → verify → clean up), access boundary, contract/schema, parity, light security and performance checks.</li>
+  <li>Both English UI only. German (Deutsch toggle) is out of scope for assertions.</li>
+</ul>
+<h3>Assumptions</h3>
+<ul>
+  <li>A1. One personal account and one viewer key, both scoped to team itac-5; data is shared with nobody else, so writes in this workspace affect only us.</li>
+  <li>A2. Person data is switched off in the sandbox; person lookups answer 404 by design. No test depends on person data.</li>
+  <li>A3. The product may change again during the evening (22 changelog entries today). Tests assert relationships (row name equals page heading, UI count equals API count), not fixed values, except where documented bounds exist.</li>
+  <li>A4. Writes available to a viewer in the UI: Follow/Dismiss a deal, Add/Remove a company in the book, request a screening, acknowledge status changes, record a credit review, pause/resume monitoring. The API is read-only by design.</li>
+</ul>
+<h3>Out of scope, with reasons</h3>
+<table>
+  <tr><th>Area</th><th>Reason</th></tr>
+  <tr><td>API key creation/revocation, SCIM, SSO, SharePoint</td><td>Admin-only; risk of locking the competition workspace; only the 403 boundary is tested</td></tr>
+  <tr><td>Alert deliveries (email, SMS, Teams, webhook)</td><td>Needs external receivers; not verifiable in CI</td></tr>
+  <tr><td>Screening and EDD dossier completion</td><td>Asynchronous, provider-dependent; we test the request and the row it creates, and read a result only if it completes within a bounded poll</td></tr>
+  <tr><td>Tenders, Scoring profile editing, Book import (UI)</td><td>Not among the six flows; import preview is covered on the API only (read-only POST)</td></tr>
+  <tr><td>Cross-browser, mobile</td><td>Each extra project multiplies the five-run CI time; chromium only for certification. Firefox/WebKit may be added as a manual-dispatch project later</td></tr>
+  <tr><td>Deliberate rate-limit exhaustion (429)</td><td>Would poison the other tests' minute window; covered by a manual probe documented in the defect log, not by CI</td></tr>
+  <tr><td>Full accessibility audit, visual regression</td><td>Bonus only after core is safe; one axe smoke and one masked screenshot at most</td></tr>
+</table>
+
+<h2 id="s6">6. Risk priorities</h2>
+<table>
+  <tr><th>#</th><th>Area</th><th>Impact if broken</th><th>Priority</th><th>Rationale</th></tr>
+  <tr><td>R1</td><td>Sign-in, session, route protection</td><td>Nothing else testable; data exposure</td><td><span class="tag P1">P1</span></td><td>Supabase auth, mandatory terms checkbox, first-run dialogs</td></tr>
+  <tr><td>R2</td><td>Deal Book list, search, filters, order, held-back</td><td>Wrong deals shown or hidden to originators</td><td><span class="tag P1">P1</span></td><td>Complex documented rules; the most-used screen</td></tr>
+  <tr><td>R3</td><td>Deal page facts, sources, downloads</td><td>Uncited facts reach a credit committee</td><td><span class="tag P1">P1</span></td><td>Every claim must cite; PDF and PPTX generation</td></tr>
+  <tr><td>R4</td><td>Portfolio statuses, counts, add/remove, causes</td><td>Credit decision on a wrong colour</td><td><span class="tag P1">P1</span></td><td>Deterministic rules; counts must match the API</td></tr>
+  <tr><td>R5</td><td>Countries score, bands, breakdown</td><td>Wrong country risk</td><td><span class="tag P1">P1</span></td><td>Published weights; band counts are testable arithmetic</td></tr>
+  <tr><td>R6</td><td>API auth boundary, envelope, validation, headers</td><td>Agents receive wrong or unprotected data</td><td><span class="tag P1">P1</span></td><td>Uniform 401, 422 details, RateLimit headers documented</td></tr>
+  <tr><td>R7</td><td>UI vs API parity</td><td>Humans and agents disagree</td><td><span class="tag P1">P1</span></td><td>Docs promise the same values, dates and order</td></tr>
+  <tr><td>R8</td><td>Network, ownership chain, financing, institutions</td><td>Wrong beneficial owner or lender</td><td><span class="tag P2">P2</span></td><td>Canvas graph untestable by text; chain and CSV are</td></tr>
+  <tr><td>R9</td><td>Screenings request and read</td><td>Missed adverse media</td><td><span class="tag P2">P2</span></td><td>Async; workspace has none yet</td></tr>
+  <tr><td>R10</td><td>Monitoring / Following</td><td>Stale research</td><td><span class="tag P2">P2</span></td><td>Restructured today; no targets yet</td></tr>
+  <tr><td>R11</td><td>Security headers, performance budgets, MCP, accessibility</td><td>Compliance and bonus</td><td><span class="tag P3">P3</span></td><td>Only after core is green</td></tr>
+</table>
+
+<h2 id="s7">7. Test architecture</h2>
+<pre>
+playwright.config.ts        baseURL from env, retries 0, workers 2, expect 10 s, test 45 s (downloads 90 s),
+                            trace retain-on-failure (sanitised), reporter list + html + github
+tests/auth.setup.ts         signs in once, skips the walkthrough, confirms terms if asked, saves playwright/.auth/user.json
+tests/ui/*.spec.ts          project "ui" (Desktop Chrome, storageState); auth.spec.ts opts out of storageState
+tests/api/*.spec.ts         project "api" (request only, baseURL = API)
+src/pages/*.ts              LoginPage, AppShell (sidebar, team switcher), DealBookPage, DealPage, PortfolioPage,
+                            CompanyPage, CountriesPage, CountryPage, ScreeningsPage, MonitoringPage, InstitutionsPage, NetworkPage
+src/api/stonewakeApi.ts     one typed client: get(path, query), expectError(code), paging helper, download helper
+src/fixtures/test.ts        extends base test with { api, shell, dealBook, portfolio, … } and a per-test download dir
+src/config/env.ts           reads and validates SW_APP_URL, SW_API_URL, SW_EMAIL, SW_PASSWORD, SW_API_KEY
+src/support/files.ts        magic-byte checks: PDF (%PDF), PPTX/XLSX (PK zip), CSV header parsing
+</pre>
+<ul>
+  <li><b>Locator policy</b>: <code>getByRole</code> first (the app exposes good names: textbox "Search deals", combobox "All windows", button "Download report"), then <code>getByText</code>/<code>getByPlaceholder</code> (many fields are placeholder-labelled, per the product's own accessibility statement), <code>getByTestId</code> where present, CSS only with a comment.</li>
+  <li><b>No test logs in through the UI except the auth specs.</b> Everything else reuses storageState, which also removes the walkthrough from every test.</li>
+  <li><b>Team context</b>: the setup confirms the sidebar shows itac-5; parity tests read <code>team_scope</code> from <code>/v1/me</code> and compare against the same team in the UI.</li>
+  <li><b>Downloads</b> go to a per-test temp dir and are checked by magic bytes and size, never opened with extra libraries.</li>
+  <li><b>Rate limit</b>: 2 workers and one shared request context per worker keep us far below 600/min. A 429 fails the test with the <code>Retry-After</code> value in the message, as an environment failure, never retried silently.</li>
+</ul>
+
+<h2 id="s8">8. UI test plan</h2>
+<p class="small">Status: <span class="status-inh">inherited</span> = stabilised version of an original test (intent preserved); <span class="status-new">new</span> = added coverage. Priority P1 = before freeze, P2 = if time, P3 = bonus.</p>
+
+<h3 id="s8-auth">8.1 Authentication (spec: <code>tests/ui/auth.spec.ts</code>, no storageState)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-AUTH-01</td><td>Valid sign-in lands on the Deal Book</td><td>Open <code>/</code> → redirected to <code>/login</code>, title "Sign in · Stonewake". Fill Email, Password, check "I agree…", click Sign in. Expect URL <code>/</code>, title "Deal Book · Stonewake", h1 "Deal Book", sidebar team combobox shows itac-5, "Sign out" button visible</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 1</td></tr>
+  <tr><td>UI-AUTH-02</td><td>Wrong password is refused</td><td>Submit with a wrong password. Expect the exact message "That email and password do not match. Check both and try again.", URL still <code>/login</code>, no sidebar</td><td>Negative</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 2</td></tr>
+  <tr><td>UI-AUTH-03</td><td>Terms gate the submit buttons</td><td>Sign in and "Email me a link to sign in instead" disabled with empty form; still disabled with credentials but unchecked terms; enabled after check; disabled again after uncheck. Links: Evaluation Terms, Terms of Service, Privacy Policy hrefs</td><td>Negative</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 3</td></tr>
+  <tr><td>UI-AUTH-04</td><td>Signed-out visitor is redirected</td><td>For <code>/</code>, <code>/portfolio</code>, <code>/countries/DEU</code>, <code>/entities</code>, <code>/screenings</code>, <code>/monitoring</code>, <code>/deals/{known id}</code>: expect URL <code>/login</code> and h1 "Sign in"</td><td>Access</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 4 (+3 routes)</td></tr>
+  <tr><td>UI-AUTH-05</td><td>Sign out ends the session</td><td>Sign in, click Sign out → <code>/login</code>; then <code>/portfolio</code> → <code>/login</code> again</td><td>Access</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 5</td></tr>
+  <tr><td>UI-AUTH-06</td><td>Session survives reload and deep links</td><td>With storageState: open <code>/portfolio</code> directly → h1 Portfolio; reload → still Portfolio, no login</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-AUTH-07</td><td>Forgot-password route exists</td><td>Click "Forgot your password?" → <code>/login/reset</code> with an email field; do not submit</td><td>Smoke</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s8-nav">8.2 Shell and navigation (spec: <code>tests/ui/navigation.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-NAV-01</td><td>Every sidebar module opens with its heading</td><td>Click each of Deal Book, Tenders, Countries, Institutions, Network, Monitoring, Portfolio, Screenings, Scoring. Expect URL and h1 per module, and document title "{Module} · Stonewake"</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 6 (realigned)</td></tr>
+  <tr><td>UI-NAV-02</td><td>EDD Dossiers is reachable by route only</td><td>Open <code>/dossiers</code> → h1 "EDD Dossiers"; assert no sidebar link with that name (documents today's change)</td><td>Smoke</td><td><span class="tag P2">P2</span></td><td class="status-inh">inherited ui 6 (split)</td></tr>
+  <tr><td>UI-NAV-03</td><td>Team switcher changes the scope label</td><td>Select "All teams" → sidebar label "Showing All teams" (or equivalent) and the Deal Book pager total changes; switch back to itac-5 → original total</td><td>State</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-NAV-04</td><td>Walkthrough is dismissible and stays dismissed</td><td>Fresh context: after sign-in the dialog "Walkthrough, step 1 of 4" is visible; Skip closes it; reload → not visible</td><td>State</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s8-db">8.3 Deal Book (specs: <code>deal-book.spec.ts</code>, <code>deal-page.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-DB-01</td><td>List renders with its controls</td><td>Tab "Deals" selected; table has columns Deal, Financing window, Value, Parties, Score, Last activity; ≥1 row; pager reads "1 to 50 of N" with N ≥ 1; comboboxes All windows / All sectors / All regions and button Filters visible</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 7 (part)</td></tr>
+  <tr><td>UI-DB-02</td><td>Search with no match shows the empty state and clears</td><td>Type "zzzzqqxx" → "No matching deals" visible, 0 row links; clear → rows return and pager total equals the original</td><td>Negative</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 7 (part)</td></tr>
+  <tr><td>UI-DB-03</td><td>Search keeps only rows containing every word</td><td>Take two words from the first row's name; search → every visible row contains both words (case-insensitive); the first row is still present</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-04</td><td>Financing window filter</td><td>Select "Financing open" in All windows → every row's window cell reads "Financing open"; pager total ≤ unfiltered total; select back → total restored</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-05</td><td>Sector and region filters combine; Filters button counts</td><td>Pick the sector of the first row, then its region → first row still visible, total ≤ each single-filter total; open Filters → panel shows institution/country/status controls; the button label shows the active count when any is set</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-06</td><td>Default order groups windows and sorts by score</td><td>Read the first page: window values appear in the order Financing open → Early stage → Not confirmed (no later group before an earlier one); within a group, Score is non-increasing</td><td>Data</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-07</td><td>Pagination and browser Back</td><td>Previous disabled on page 1; Next → pager "51 to 100 of N", first row differs, URL changes; browser Back → page 1 rows again</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-08</td><td>Held-back deals can be revealed</td><td>Paragraph "N held back as …" with button "Show them"; click → pager total increases by N (or ≥ original) and the button toggles its label</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-09</td><td>Opening a deal shows its cited briefing</td><td>Click the first row link → URL <code>/deals/{id}</code>, h1 equals the row's deal name, headings Briefing, Updates, Parties, Score, Key facts visible; Briefing has ≥1 source link; Updates has ≥1 "n source(s)" button; Key facts shows the same value as the row's Value cell</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 7 (part) + new</td></tr>
+  <tr><td>UI-DB-10</td><td>Source disclosure</td><td>Click a "n sources" button in Updates → a quote with a URL and a date is shown</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-11</td><td>Download report (PDF) and Download deck (PPTX)</td><td>Each click yields a download event; filename ends .pdf / .pptx; file size &gt; 10 KB; magic bytes %PDF / PK; per-test timeout 90 s</td><td>Data</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-12</td><td>Export the Deal Book workbook</td><td>Click Export → .xlsx download, PK magic, size &gt; 5 KB; the status live region announces the export outcome</td><td>Data</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-13</td><td>Follow a deal and see it in Following; unfollow (cleanup)</td><td>On row 1 click Follow → Following tab lists the deal; unfollow from there → gone; Deals tab total unchanged</td><td>State</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-DB-14</td><td>Dismiss hides a deal (only if reversible)</td><td>Explore by hand first: if "Show them"/held-back view lets us restore a dismissed deal, automate dismiss → row gone → restore; else keep manual</td><td>State</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s8-scr">8.4 Screenings (spec: <code>screenings.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-SCR-01</td><td>Page loads with the list or the empty state</td><td>h1 Screenings, button New screening; either rows or "Nothing screened yet" text; nothing else asserted</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 6 (split)</td></tr>
+  <tr><td>UI-SCR-02</td><td>Request a screening for an organisation</td><td>New screening → choose organisation, type a portfolio company name (e.g. the first row of the book), submit → a row for that subject appears with a non-final state (Queued/Running or similar); after reload the row persists; the API <code>/v1/screenings</code> total has increased by 1 and the new id is readable</td><td>State</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-SCR-03</td><td>Read a completed screening with sources</td><td>Poll the row from UI-SCR-02 for up to 60 s; if complete, open it → verdict, findings each with a source link, "official lists" section. If still running, the test records the state and passes only the "still non-final and readable" assertions (documented, not a hidden skip)</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-SCR-04</td><td>Screen parties from a deal page</td><td>On the first deal, "Screen all parties (n)" → n screenings appear in Screenings, each named after a party</td><td>State</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+<div class="callout warn">Screenings cannot be deleted by a viewer as far as the docs show. Each run adds rows to the workspace. Limit to one screening per run, name it with a run marker where the UI allows a note, and record the growth in the defect/changes log. If the product refuses duplicates, assert that message instead.</div>
+
+<h3 id="s8-net">8.5 Network and Institutions (specs: <code>institutions.spec.ts</code>, <code>company.spec.ts</code>, <code>network.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-NET-01</td><td>Institutions search and open</td><td>Search "UKEF" → a row "UK Export Finance" visible; every visible row matches the term; click it → h1 "UK Export Finance" (resolved by name, not id 4), title "Institutions · Stonewake"</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 9</td></tr>
+  <tr><td>UI-NET-02</td><td>Institutions filters</td><td>Kind combobox → "Multilateral": every row's kind reads Multilateral; Country combobox narrows further; counts match <code>/v1/entities</code> filtered client-side</td><td>Positive</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-NET-03</td><td>Company page from the book</td><td>Open the first Portfolio row (<code>/entities/n{node_id}</code>) → h1 equals the row name; status badge equals the row status; sections for signals/score, register records, ownership chain (each hop with a citation) and financing are present</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 10 (part) + new</td></tr>
+  <tr><td>UI-NET-04</td><td>Ownership chain matches the API</td><td>Hop names on the company page equal <code>/v1/nodes/{id}/ownership-chain</code> in order; a hop's citation opens a record with register and read date</td><td>Parity</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-NET-05</td><td>Network view loads and exports</td><td><code>/network</code>: search a book company → canvas present, controls Min ownership / Current / All history / As of visible; Export CSV → .csv with a header row including a citation column and ≥1 data row</td><td>Data</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-NET-06</td><td>"How are A and B connected?"</td><td>Two book companies → either a path list or a clear "no path" message; never an error</td><td>Positive</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s8-cty">8.6 Countries (spec: <code>countries.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-CTY-01</td><td>List, bands and controls</td><td>h1 Countries; band buttons High risk / Elevated / Moderate / Unscored each with "n countries"; Export button; "Search countries" textbox; table columns Region / country, Country risk, Deals, Reported value, Lists; region groups expandable</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 8 (part)</td></tr>
+  <tr><td>UI-CTY-02</td><td>Band counts add up and filter the list</td><td>Sum of the four band counts equals the number of country rows (all regions expanded); click "High risk" → row count equals that band's count and every risk value is in the band; click again → unfiltered</td><td>Data</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-CTY-03</td><td>Search and open Germany</td><td>Search "Germany" → only matching rows; open → URL <code>/countries/DEU</code>, h1 Germany, headings "Country risk" and "Data sources"</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 8 (part)</td></tr>
+  <tr><td>UI-CTY-04</td><td>Breakdown arithmetic and API parity</td><td>On DEU: printed score equals <code>/v1/countries/DEU</code> <code>risk.score</code>; each breakdown row's weight and contribution equal the API row; contributions sum to the score within ±1 after rounding; "How the points are counted" opens</td><td>Parity</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-CTY-05</td><td>No match and unknown code</td><td>Search "Zzzzqq" → "No matching countries", 0 row links; <code>/countries/ZZZ</code> → title "Page not found · Stonewake"</td><td>Negative</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 8 (part)</td></tr>
+  <tr><td>UI-CTY-06</td><td>Unscored country shows a reason, no number</td><td>Click "Unscored" band → first row's risk cell reads "Not scored" and hover shows a reason; open it → page prints no composite number and the API <code>risk_reason</code> is <code>below_coverage_floor</code></td><td>Negative</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-CTY-07</td><td>Export workbook and Country Brief</td><td>Countries Export → .xlsx (PK, &gt; 5 KB); on DEU "Download report" → .pdf (%PDF)</td><td>Data</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-CTY-08</td><td>Deals column agrees with the Deal Book</td><td>A country with "n" in Deals: open the Deal Book filtered by that country → pager total n (same team)</td><td>Parity</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s8-pf">8.7 Monitoring and Portfolio (specs: <code>portfolio.spec.ts</code>, <code>monitoring.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Steps and assertions</th><th>Type</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>UI-PF-01</td><td>Status strip and summary line</td><td>Labels Red, Amber, No score yet, Not yet assessed, Green each with an integer; line "N active exposures · M status changes in 30 days"; sum of the five counts (plus Sole trader if shown) equals N</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 10 (realigned)</td></tr>
+  <tr><td>UI-PF-02</td><td>Strip equals the API summary</td><td>Counts equal <code>/v1/portfolio/summary</code> (green, amber, red, insufficient → "No score yet", not_assessed → "Not yet assessed"); N equals <code>active_exposures</code>; M equals <code>status_changes_30d</code>; book row count equals <code>/v1/portfolio</code> total</td><td>Parity</td><td><span class="tag P1">P1</span></td><td class="status-new">new (exists in draft)</td></tr>
+  <tr><td>UI-PF-03</td><td>First row opens its company page</td><td>Click the first Company link → URL <code>/entities/n\d+</code>, h1 equals the link text</td><td>Positive</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 10 (part)</td></tr>
+  <tr><td>UI-PF-04</td><td>Row values are consistent</td><td>Every Status cell is one of the six names; a "No score yet" row has Score "Not scored"; Green/Amber/Red rows have a numeric score; Last change cell has a date</td><td>Data</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-05</td><td>Status change explains its cause</td><td>In Status changes, click "Why the status changed" on the first entry → drivers with band before/after, or "Cause not available" / "n signals stopped scoring"; the entry names from → to status and a date; matches the first row of <code>/v1/portfolio/transitions</code></td><td>Parity</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-06</td><td>Add a company to the book, then remove it (cleanup)</td><td>Type a company not in the book (choose at run time from <code>/v1/search</code> excluding book node_ids); pick it; Add → new row with status "Not yet assessed" or first status, Last change "Added to the book"; API total +1. Cleanup: company page → Remove from book → reason "Added by mistake" → row gone, feed shows "Removed from the book", API total back. Cleanup runs in <code>finally</code>; failure to clean up fails the test</td><td>State</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-07</td><td>Duplicate add is refused</td><td>Type an existing book company (e.g. first row) → Add → message names the existing entry, row count unchanged</td><td>Negative</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-08</td><td>Reviews due matches the API</td><td>"n exposures have no credit review on record" equals the never-reviewed count from <code>/v1/portfolio/reviews-due</code>; overdue list rows equal <code>reviews_overdue</code></td><td>Parity</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-09</td><td>Acknowledge a status change</td><td>Acknowledge the first open change → it leaves the open list; <code>/v1/portfolio/transitions</code> row shows it acknowledged. Runs only when an open change exists (precondition asserted, else test fails with a clear data message; never silently skipped)</td><td>State</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-10</td><td>Record a credit review</td><td>On the UI-PF-06 company (before removal): disposition "Reviewed, no action", note with run marker, save → review shown; <code>/v1/portfolio/{id}/reviews</code> first item matches</td><td>State</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-PF-11</td><td>Company deck download</td><td>Company page "Download deck" → .pptx (PK)</td><td>Data</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>UI-MON-01</td><td>Monitoring page state</td><td>h1 Monitoring; explanatory text and link "Follow names in the Following tab of Deal Book"; if <code>/v1/monitoring/targets</code> total is 0 the page shows no table, else the table has type / frequency / last check / status columns</td><td>Smoke</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited ui 6 (split)</td></tr>
+  <tr><td>UI-MON-02</td><td>Follow a name, pause and resume, remove (cleanup)</td><td>Deal Book → Following → Follow a name → pick a company → it appears in Following and in the Monitoring table with a frequency; toggle Active off → status Paused; on → not Paused; remove → gone; API targets total back to original</td><td>State</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h2 id="s9">9. API test plan</h2>
+<p class="small">All requests use the finalist key from <code>SW_API_KEY</code> as <code>Authorization: Bearer</code>. Error bodies are asserted on <code>error.code</code> and the fixed message; 422 bodies on <code>detail[0].type/loc/msg</code>. Published bounds are read from the live <code>openapi.json</code> where practical so a product change becomes a visible diff, not a mystery failure.</p>
+
+<h3 id="s9-auth">9.1 Auth boundary and headers (spec: <code>tests/api/auth.spec.ts</code>, <code>health.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-AUTH-01</td><td><code>GET /health</code></td><td>200; keys exactly app, environment, status, version; status "ok", app "stonewake"; no Authorization needed</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 1 (path fixed)</td></tr>
+  <tr><td>API-AUTH-02</td><td><code>GET /v1/me</code> with our key</td><td>200; credential "api_key"; role matches <code>^[a-z_]+$</code>; team_scope.all_teams false with exactly one team; key.scopes contains "read"; expires_at is a UTC timestamp in the future; X-RateLimit-Limit/Remaining numeric</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 2 (Bearer, no log)</td></tr>
+  <tr><td>API-AUTH-03</td><td>No credential → uniform 401</td><td>GET /v1/me, /v1/portfolio, /v1/countries, /v1/entities, /v1/deals and POST /v1/citations/resolve all answer 401 with exactly <code>{error:{code:"unauthenticated", message:"Missing or invalid credentials."}}</code></td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 3</td></tr>
+  <tr><td>API-AUTH-04</td><td>Malformed or wrong-scheme credential → same 401</td><td>Bearer swk_live_invalid…, Bearer not-a-key, Basic abc, Token &lt;our key&gt; → identical body; no hint which was wrong</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 4 (+Token case)</td></tr>
+  <tr><td>API-AUTH-05</td><td>Rate-limit headers</td><td>Every /v1 response, including 401 and 404, carries <code>RateLimit-Policy</code> with a key-minute and a workspace-day item; keyed 200s carry <code>RateLimit</code> (r, t) and X-RateLimit-* with Remaining ≤ Limit and Reset ≈ now + t; two consecutive calls show Remaining decreasing by 1 (same window)</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-AUTH-06</td><td>Team scoping of the key</td><td>Every item of /v1/deals, /v1/portfolio and /v1/portfolio/transitions carries <code>team_id</code> equal to me.team_scope.teams[0].id (or null for workspace-wide screenings)</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-AUTH-07</td><td>Method not allowed</td><td>POST /v1/countries, DELETE /v1/portfolio → 405 <code>method_not_allowed</code></td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-AUTH-08</td><td>Unknown route under /v1</td><td>GET /v1/health, /v1/nope → 404 <code>not_found</code> "Resource not found."</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-AUTH-09</td><td>Viewer key cannot manage keys</td><td>GET /org/api-keys and POST /org/api-keys → 403 <code>forbidden</code> (or 401 if the route ignores keys; record the actual)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s9-pf">9.2 Portfolio (spec: <code>portfolio.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-PF-01</td><td>Paging envelope and item schema</td><td><code>?limit=2</code> → items ≤ 2, limit 2, offset 0, integer total; each item: integer id, string label, boolean active, status ∈ {green, amber, red, insufficient, not_assessed, sole_trader}, completeness 0..1, node_id integer, team_id string; <code>?offset=total</code> → empty items with same total</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 5 (items)</td></tr>
+  <tr><td>API-PF-02</td><td>Limit boundaries</td><td>100 → 200 with limit 100; -1, abc, 101, 100000 → 422 <code>validation_failed</code>, detail loc ["query","limit"], msg "Input should be less than or equal to 100" for 101</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 5 (part)</td></tr>
+  <tr><td>API-PF-03</td><td>Summary arithmetic</td><td>statuses has exactly the six keys, all integers; sum equals active_exposures; equals /v1/portfolio total; reviews_overdue, transitions_30d, status_changes_30d integers with status_changes_30d ≤ transitions_30d</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 6 (+2 fields)</td></tr>
+  <tr><td>API-PF-04</td><td>Ordering by severity</td><td>Full book (limit 100): status order index red &lt; amber &lt; others is non-decreasing across items (red first)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-PF-05</td><td>include_inactive</td><td>total with <code>include_inactive=true</code> ≥ default total; every default item has active true</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-PF-06</td><td>Transitions feed</td><td>Newest first by occurred_at; each row has cause.kind ∈ {added, change}, cause.available boolean, from_status/to_status; <code>since=2026-10-01T00:00:00Z</code> → every row ≥ since; <code>since=2026-10-01T00:00:00</code> (no offset) → 422</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-PF-07</td><td>Reviews of one exposure; reviews due</td><td>/v1/portfolio/{first id}/reviews → 200 envelope, first item status "added" or a disposition; /v1/portfolio/999999/reviews → 404; /v1/portfolio/reviews-due → integers and lists present</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-PF-08</td><td>Import preview is read-only</td><td>POST /v1/portfolio/import with an empty body → 422 or 413 as published; with a 2-line CSV of one known LEI and one garbage row → 200 with one outcome per row; afterwards /v1/portfolio total unchanged</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s9-dl">9.3 Deals (spec: <code>deals.spec.ts</code>, <code>downloads.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-DL-01</td><td>Default list</td><td>200 envelope; each item has deal_id (12 hex chars), name, stage, status, relevance_score 0..100, countries and countries_iso3 of equal length, team_id; total equals the UI pager total for the same team (recorded 146)</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-02</td><td>Filters narrow correctly</td><td><code>stage</code>, <code>sector</code>, <code>region</code>, <code>country_code</code>, <code>min_value_usd</code>, <code>q</code>: every item satisfies the predicate; filtered total ≤ unfiltered; an unknown enum value → 422</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-03</td><td>Sort and direction</td><td><code>sort=value&amp;direction=desc</code> → contract_value_usd (or the max of a bound) non-increasing; <code>direction=sideways</code> → 422</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-04</td><td>Hidden deals</td><td><code>include_hidden=true</code> total equals visible + held-back shown in the UI (146 + 311)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-05</td><td>Deal detail</td><td>/v1/deals/{first id} → same name, stage, relevance_score, contract_value_usd as the list item; timeline present; <code>timeline_limit=1</code> → ≤ 1 entry; unknown id → 404; malformed id → 404 or 422 as published</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-06</td><td>Document downloads (reports scope)</td><td>/v1/deals/{id}/report.pdf and /pack.pdf → 200, content-type application/pdf, body starts with %PDF; /deck.pptx → 200, pptx content-type, body starts with PK; unknown id → 404; no key → 401</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-07</td><td>Screening roll-up</td><td>/v1/deals/{id}/screening-rollup → 200 with per-party entries (empty allowed); unknown id → 404</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-08</td><td>Binding queue and duplicates</td><td>/v1/deals/parties/binding-queue and /v1/deals/merge/suggestions → 200 envelopes, paging valid</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-DL-09</td><td>Text encoding probe</td><td>No <code>name</code>, <code>summary</code> or <code>legal_form_label</code> in the first 100 deals / 25 search hits contains the mojibake sequences "â€", "Ã " or "Â". Expected to FAIL today; it stays in the suite as a documented product-bug test, tagged and linked to the SpiraTest issue, and is excluded from the certification scope only if the judges accept a bug-caused red (see section 13)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s9-cty">9.4 Countries and reference data (spec: <code>countries.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-CT-01</td><td>Index</td><td>regions array; ≥ 100 countries; every iso3 matches ^[A-Z]{3}$; DEU name Germany; countries without a score carry <code>risk_reason: below_coverage_floor</code>; count of those equals the UI "Unscored n countries"</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 9 (+reason)</td></tr>
+  <tr><td>API-CT-02</td><td>Germany detail</td><td>iso3 DEU, iso2 DE, region europe, region_label Europe; risk.score integer 0..100; breakdown rows each with component, weight, contribution, part ∈ {assessment, list}, citation.dataset_id; sum of contributions ≈ score (±1); gaps[] entries have component, reason, sentences[]</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 9 (iso2 fixed)</td></tr>
+  <tr><td>API-CT-03</td><td>Bad codes</td><td>ZZZ → 404; "deu" and "DE" → 404 or 422 as published (record which); no key → 401</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 9 (part)</td></tr>
+  <tr><td>API-CT-04</td><td>Weights are the published ones</td><td>For a fully scored country: weights by component equal cpi 25, wgi 20, oecd 12, news 13, fatf 10, eu_list 5, sanctions 15 (or, when a component is missing, its weight is redistributed inside its part and parts still sum to 70 + 30)</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-CT-05</td><td>Datasets referenced exist</td><td>Every breakdown citation.dataset_id of DEU appears in /v1/reference/datasets</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s9-en">9.5 Entities, nodes, network, search (specs: <code>entities.spec.ts</code>, <code>nodes.spec.ts</code>, <code>search.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-EN-01</td><td>Entities list and detail agree</td><td>/v1/entities?limit=2 → items with id, slug, display_name, kind; /v1/entities/{first id} deep-equals the list item</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 7</td></tr>
+  <tr><td>API-EN-02</td><td>Entity error shapes</td><td>999999 → 404 not_found; abc → 422 with detail[0].type int_parsing, loc ["path","entity_id"]; /v1/nodes/999999999 → 404; no key → 401</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 8</td></tr>
+  <tr><td>API-EN-03</td><td>Search</td><td>q=bank&amp;limit=3 → query echoed, 1..3 hits with node_id integer, label, score 0..1, node_type; gibberish → []; missing q → 422; q=a → 422 "String should have at least 2 characters"; limit over the published max (25) → 422</td><td><span class="tag P1">P1</span></td><td class="status-inh">inherited api 10 (bound fixed)</td></tr>
+  <tr><td>API-EN-04</td><td>Node routes for a book company</td><td>With node_id of the first portfolio item: /v1/nodes/{id} → label equals the book label; /company → identity fields; /ownership-chain → hops array, each with a citation; /network → edges each with citation; /financing → coverage states; /records → envelope</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-EN-05</td><td>Risk twin equals the book</td><td>/v1/nodes/{id}/risk and /v1/entities/{id}/risk return the same status and score as the portfolio item for that node</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-EN-06</td><td>Ownership-chain parameters</td><td>threshold=25&amp;max_depth=8 → 200; threshold=101, max_depth=0 → 422; unknown node → 404</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-EN-07</td><td>Company documents</td><td>/v1/nodes/{id}/profile.pdf → %PDF; /risk-deck.pptx → PK; locale=de accepted</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s9-sc">9.6 Screenings, monitoring, watches (spec: <code>research.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-SC-01</td><td>Screenings list and filters</td><td>/v1/screenings → envelope (total may be 0); filters entity_id / node_id / iso3 / subject_type accepted; subject_type=bogus → 422; /v1/screenings/999999 → 404</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-SC-02</td><td>A UI-requested screening is readable</td><td>After UI-SCR-02: the new screening id appears in the list with the subject name and a state; /v1/screenings/{id} → same subject, verdict null or a value, sources array</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-MON-01</td><td>Monitoring reads</td><td>/v1/monitoring/targets, /catalog, /sources → envelopes with valid paging; targets total equals the Monitoring table row count in the UI</td><td><span class="tag P1">P1</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-MON-02</td><td>Watches</td><td>/v1/watches → items with node_id, label, cadence ∈ {hourly, daily, every_2_days, weekly} (verify the exact enum), created_at ISO; total ≥ 1</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-MON-03</td><td>Developments and runs</td><td>/v1/developments and /v1/runs → envelopes; /v1/runs/{unknown} → 404</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h3 id="s9-nfr">9.7 Security, performance, MCP (specs: <code>security.spec.ts</code>, <code>perf.spec.ts</code>, <code>mcp.spec.ts</code>)</h3>
+<table>
+  <tr><th>ID</th><th>Scenario</th><th>Assertions</th><th>Prio</th><th>Status</th></tr>
+  <tr><td>API-SEC-01</td><td>Security headers</td><td>App and API responses carry Strict-Transport-Security, X-Content-Type-Options nosniff, and either X-Frame-Options or a CSP frame-ancestors; recorded, soft-asserted first, hardened once observed stable</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-SEC-02</td><td>Audit log export</td><td>/v1/audit-log.csv without from/to → 422; with a valid range → 200 text/csv or 403 for a viewer (record the actual, both are acceptable documented behaviours)</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-SEC-03</td><td>Oversized POST</td><td>POST /v1/citations/resolve with a body over the published limit → 413 <code>content_too_large</code>; with an empty JSON object → 422</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>API-PERF-01</td><td>Response-time budget</td><td>5 sequential samples each of /health, /v1/portfolio?limit=50, /v1/deals?limit=50, /v1/countries: report median and max as a test annotation; soft budget /health &lt; 1 s, lists &lt; 3 s; hard-fail only above 10 s</td><td><span class="tag P2">P2</span></td><td class="status-new">new</td></tr>
+  <tr><td>MCP-01</td><td>Tools list (bonus)</td><td>POST https://mcp.stonewake.ai/ tools/list without key → 200, ≥ 38 tools including deal_book, portfolio_overview, country_profile; a data tool without key → JSON-RPC error -32001</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+  <tr><td>MCP-02</td><td>deal_book parity (bonus)</td><td>deal_book with the key → the same first deal_id and total as /v1/deals</td><td><span class="tag P3">P3</span></td><td class="status-new">new</td></tr>
+</table>
+
+<h2 id="s10">10. Cross-surface parity (the distinctive layer)</h2>
+<p>The docs promise that the dashboard, the API and MCP serve "the same values, dates and order". These checks are where real product bugs are most likely and where a UI-plus-API suite earns its keep. Each parity test reads the API inside a UI test through the shared <code>api</code> fixture, for the same team.</p>
+<table>
+  <tr><th>Pair</th><th>UI value</th><th>API value</th><th>Covered by</th></tr>
+  <tr><td>Deal Book total</td><td>Pager "1 to 50 of N"</td><td>/v1/deals total</td><td>API-DL-01</td></tr>
+  <tr><td>Deal Book first page order</td><td>Row names 1..50</td><td>/v1/deals?limit=50 names in order</td><td>UI-DB-06 (extend)</td></tr>
+  <tr><td>Deal page value</td><td>Key facts value</td><td>value_text / contract_value_usd</td><td>UI-DB-09</td></tr>
+  <tr><td>Portfolio strip</td><td>Five counts and the summary line</td><td>/v1/portfolio/summary</td><td>UI-PF-02</td></tr>
+  <tr><td>Status change cause</td><td>"Why the status changed"</td><td>/v1/portfolio/transitions[0].cause</td><td>UI-PF-05</td></tr>
+  <tr><td>Country score and breakdown</td><td>Germany page</td><td>/v1/countries/DEU</td><td>UI-CTY-04</td></tr>
+  <tr><td>Unscored countries</td><td>"Unscored n countries"</td><td>count of risk_reason below_coverage_floor</td><td>API-CT-01</td></tr>
+  <tr><td>Ownership chain</td><td>Company page hops</td><td>/v1/nodes/{id}/ownership-chain</td><td>UI-NET-04</td></tr>
+  <tr><td>Monitoring rows</td><td>Table row count</td><td>/v1/monitoring/targets total</td><td>API-MON-01</td></tr>
+  <tr><td>Screening created in UI</td><td>New row</td><td>/v1/screenings total +1</td><td>UI-SCR-02 / API-SC-02</td></tr>
+</table>
+
+<h2 id="s11">11. Test data and cleanup</h2>
+<ul>
+  <li><b>Account</b>: Finalist 5 only. The inherited specs used Judge 2's account; that is replaced, never reused.</li>
+  <li><b>Read tests</b> pick the first visible row at run time and assert relationships; no hard-coded ids except DEU (stable ISO code) and UKEF (stable institution name resolved by text).</li>
+  <li><b>Write tests</b> (UI-PF-06, UI-PF-10, UI-DB-13, UI-MON-02, UI-SCR-02) create their own state with a run marker (<code>itac-{runId}-{workerIndex}</code>) where a note or name field exists, verify, and clean up in <code>finally</code>. Cleanup failure fails the test loudly. Each write test is serialised with <code>test.describe.configure({ mode: 'serial' })</code> inside its file and files that write to the same object (Portfolio) run in one worker.</li>
+  <li><b>Irreversible writes</b> (screenings, acknowledgements) are limited to one per run, documented in the changes log, and designed so that a depleted precondition fails with a clear data message rather than hiding behind a skip.</li>
+  <li><b>Downloads</b> are written to <code>test-results/downloads/{testId}</code> and deleted after assertion.</li>
+  <li><b>Secrets</b>: <code>.env</code> locally (gitignored), GitHub Actions secrets in CI; <code>playwright/.auth/</code> gitignored; traces reviewed for Authorization headers before any public upload. If sanitising cannot be guaranteed, traces stay as private workflow artifacts and the public report carries screenshots only.</li>
+</ul>
+
+<h2 id="s12">12. Execution, CI and five-green protocol</h2>
+<table>
+  <tr><th>Item</th><th>Decision</th></tr>
+  <tr><td>Command</td><td><code>npx playwright test</code> (all three projects); tags <code>@p1</code> etc. allow partial local runs but certification runs the whole suite</td></tr>
+  <tr><td>Browser</td><td>Chromium, Desktop Chrome device profile, headless</td></tr>
+  <tr><td>Parallelism</td><td>2 workers; <code>fullyParallel</code> for read-only files; write files serial</td></tr>
+  <tr><td>Retries</td><td>0 everywhere. A green run means first-attempt pass of every test</td></tr>
+  <tr><td>Workflow</td><td><code>.github/workflows/playwright.yml</code>: push to main, <code>workflow_dispatch</code>; Node 22, <code>npm ci</code>, chromium only; secrets SW_EMAIL, SW_PASSWORD, SW_API_KEY; upload HTML report as artifact and deploy it to GitHub Pages; report title includes run number and short SHA; concurrency group without cancel-in-progress during certification (queued runs must not be cancelled)</td></tr>
+  <tr><td>Five-green protocol</td><td>Freeze the commit. Dispatch run 1; when it finishes green, dispatch run 2; and so on to 5. Record each run URL, conclusion, duration, test count, skipped count (must be 0) and the SHA in <code>.itac/JUDGE_STATUS.md</code>. A failed qualifying run breaks the streak: fix, new SHA, restart from 1. The README links the repo, the last run and the Pages report; all three are opened signed-out in a private window before submission</td></tr>
+  <tr><td>Budget</td><td>Measured baseline CI wall-clock is ~3 min for 20 tests; expect ~6–8 min for ~80 tests with downloads. Five runs ≈ 40 min plus queue; freeze no later than 20:15</td></tr>
+</table>
+
+<h2 id="s13">13. Flakiness controls and integrity rules</h2>
+<ul>
+  <li>Web-first assertions only; no <code>waitForTimeout</code>; waits target the specific row, heading or download, never <code>networkidle</code>.</li>
+  <li>Login once; the walkthrough and terms confirmation handled in the setup project; a guard in <code>AppShell</code> closes a stray dialog if the product shows it again.</li>
+  <li>Live data changes during the evening: assert relationships and documented bounds; numbers observed today (146, 311, 25, 13) appear only as examples, never as expected values.</li>
+  <li>Downloads and PDF generation get their own 90 s test timeout; they are not run in parallel with each other in one worker.</li>
+  <li>429 or 503 from the API fails the test with the code and <code>Retry-After</code>; it is never retried silently and is reported as an environment event in the defect log.</li>
+  <li><b>No</b> <code>test.skip</code>, <code>test.fixme</code>, <code>.only</code>, <code>continue-on-error</code>, weakened assertions or disabled projects to get green. The one planned red (API-DL-09, product encoding bug) is handled as the judges said in the opening: either kept red with a note that it fails because of an application bug, or excluded with an explicit, disclosed annotation linking the SpiraTest issue. The choice is recorded in the README and STP; it is not hidden.</li>
+</ul>
+
+<h2 id="s14">14. Entry and exit criteria</h2>
+<div class="kv">
+  <div>Entry</div><div>Finalist 5 account and key work (verified 18:20); inherited project runs locally (verified 18:15); public GitHub repo with Actions and Pages enabled; secrets configured</div>
+  <div>Exit for freeze</div><div>All P1 cases implemented and green locally twice in a row with retries 0; one green Actions run with the Pages report reachable signed-out</div>
+  <div>Exit for submission</div><div>Five consecutive green Actions runs on one SHA; README with verified links and AI usage; this plan promoted to STP v1.0 with real counts; defect log with SpiraTest ids; video recorded; form submitted and confirmed before 21:00</div>
+</div>
+
+<h2 id="s15">15. Defect candidates already observed (not yet filed)</h2>
+<p>Each must be reproduced by hand, captured (Jam.dev where possible) and filed in SpiraTest per the bug-report standard before it is counted. Severity is provisional.</p>
+<table>
+  <tr><th>#</th><th>Observation</th><th>Where</th><th>Provisional severity</th><th>Next step</th></tr>
+  <tr><td>D1</td><td>UTF-8 double encoding in API text: deal name "Japan Invest 3 LLC â€“ US natural gas …" (en dash), search hit legal_form_label "SA Ã  conseil d'administration". The UI shows the same deal with a comma instead, so the surfaces also disagree on the name</td><td>GET /v1/deals, GET /v1/search</td><td>Medium (data quality, API consumers)</td><td>Reproduce with curl, count affected rows, file; keep API-DL-09 as the regression test</td></tr>
+  <tr><td>D2</td><td>Portfolio status strip shows five tiles; the docs say six statuses "named the same way everywhere" (Sole trader missing from the strip; the count is 0 today so it may be hidden by design)</td><td>/portfolio</td><td>Low / docs</td><td>Ask Stonewake via the judges before filing</td></tr>
+  <tr><td>D3</td><td>Deal page document title stays "Deal Book · Stonewake" instead of naming the deal; every other page titles itself after its module or entity</td><td>/deals/{id}</td><td>Low (UX, accessibility)</td><td>Reproduce, file as minor</td></tr>
+  <tr><td>D4</td><td>Docs say the MCP server has 38 tools; tools/list returns 40 (search, fetch undocumented). Docs' rate-limit example (120/min) differs from the served policy (600/min), which is allowed by the docs themselves, so not a bug</td><td>docs.stonewake.ai/mcp</td><td>Low (documentation)</td><td>File as documentation issue if time allows</td></tr>
+</table>
+
+<h2 id="s16">16. Timeline to 21:00 (Asia/Jerusalem)</h2>
+<table>
+  <tr><th>When</th><th>What</th><th>Done when</th></tr>
+  <tr><td>18:30–18:45</td><td>Plan review (this document). Repo hygiene: untrack .env, node_modules, reports; env-driven config; GitHub secrets; Pages workflow</td><td>One green Actions run of the stabilised inherited 20 with a public report URL</td></tr>
+  <tr><td>18:45–19:25</td><td>Layer 1 + 2: stabilise all 20 inherited tests on the refactored architecture; fix the api fixture trace-dispose bug</td><td>Local run 2× green, retries 0</td></tr>
+  <tr><td>19:25–20:05</td><td>Layer 3, P1 only, in this order: API-AUTH-05/06, API-DL-01/02/05/06, API-PF-06, API-CT-01/02, API-EN-04, API-SC-01, API-MON-01, UI-PF-02/04/05/06, UI-DB-03/04/06/09/11, UI-CTY-02/04, UI-NET-03</td><td>Each file green locally before the next starts; defect log updated as findings appear</td></tr>
+  <tr><td>20:05–20:15</td><td>Freeze. Final local run, push, dispatch run 1</td><td>Run 1 green; SHA recorded</td></tr>
+  <tr><td>20:15–20:50</td><td>Runs 2–5 dispatched sequentially. In parallel (no code changes): STP v1.0, README (links, AI usage, limitations), defect log and SpiraTest filings for D1 and D3, record the video (project state → problems → changes → stability → why trustworthy, 2–3 min, screen capture of a run and the report)</td><td>Five URLs recorded; signed-out link check done in a private window</td></tr>
+  <tr><td>20:50–21:00</td><td>Submit the form; confirm the confirmation screen; screenshot it</td><td>Human confirmation in the ledger</td></tr>
+</table>
+<div class="callout warn">If P1 work runs late, the cut is made at 20:05 regardless: whatever is green goes into certification, the rest is listed as "planned, not implemented" in the STP. A smaller honest suite with five green runs beats a larger one with none.</div>
+
+<h2 id="s17">17. Open questions</h2>
+<ol>
+  <li>For the user: approve the P1 list and the handling of API-DL-09 (keep red with a note, or exclude with disclosure). Default if no answer: keep it red with the note, as the judges allowed in the opening.</li>
+  <li>For the user: are writes in the itac-5 workspace acceptable (add/remove a company, one screening per run, follow/unfollow)? Default: yes, with cleanup, as the workspace is ours alone.</li>
+  <li>For the judges: do the five green runs have to be GitHub Actions runs? (We will do Actions regardless.) Will Judge 2's key, published in the upstream repo, be rotated?</li>
+  <li>For Stonewake via the judges: is the missing Sole trader tile intentional when the count is zero (D2)?</li>
+</ol>
+
+<h2 id="s18">Appendix A. Locator notes per page (from today's accessibility snapshots)</h2>
+<table>
+  <tr><th>Page</th><th>Reliable locators</th><th>Traps</th></tr>
+  <tr><td>Login</td><td>textbox "Email" (placeholder you@bank.com), textbox "Password", checkbox name starting "I agree to the Evaluation Terms", button "Sign in", button "Email me a link to sign in instead", link "Forgot your password?"</td><td>No <code>#email</code>; the native checkbox is aria-hidden, click the role checkbox</td></tr>
+  <tr><td>Shell</td><td>complementary (aside) with combobox "Team", navigation links by name, button "Sign out", button "Report an issue", buttons "English" / "Deutsch"</td><td>Dialog "Walkthrough, step 1 of 4" (Skip) on first sign-in; alert "Confirm the terms"</td></tr>
+  <tr><td>Deal Book</td><td>heading "Deal Book", tab "Deals"/"Following", textbox "Search deals", combobox "All windows"/"All sectors"/"All regions", button "Filters", button "Export", table columnheaders, row links href ^/deals/, button "Show them", buttons "Previous"/"Next", text "1 to 50 of N"</td><td>Row link accessible name concatenates badge + name + country/sector; read the inner name element or the h1 after navigation</td></tr>
+  <tr><td>Deal page</td><td>h1 = name, buttons Follow / Dismiss / Download report / Download deck, headings Briefing / Updates / Parties / Score / Key facts / Next step, buttons "n source(s)", "Screen all parties (n)"</td><td>Document title is not the deal name (D3)</td></tr>
+  <tr><td>Portfolio</td><td>heading "Portfolio", status labels as text with adjacent count paragraphs, combobox "Add a company to the monitored book", buttons "Add", "Import book", "Acknowledge", "Acknowledge all", "Why the status changed", table columns Company/Status/Score/Attention/Last change, company links href ^/entities/n</td><td>Re-check whether <code>data-testid="tile-*"</code> still exist before relying on them</td></tr>
+  <tr><td>Countries</td><td>heading "Countries", band buttons named "High risk … n countries" etc., textbox "Search countries", button "Export", region group buttons "Europe 51 countries" [expanded], country links by name, numeric links for deal counts</td><td>Band button names embed amounts and percentages; match with a regex on the band word</td></tr>
+  <tr><td>Screenings</td><td>heading "Screenings", button "New screening", text "Nothing screened yet"</td><td>Form fields of the new-screening dialog not yet captured; explore before coding</td></tr>
+  <tr><td>Monitoring</td><td>heading "Monitoring", link "Follow names in the Following tab of Deal Book."</td><td>No table while there are no targets</td></tr>
+  <tr><td>Institutions</td><td>heading "Institutions", comboboxes "Kind" / "Country", textbox placeholder "Search institutions…", row links href ^/entities/</td><td>Do not hard-code id 4</td></tr>
+</table>
+
+<h2 id="s19">Appendix B. Environment variables</h2>
+<table>
+  <tr><th>Name</th><th>Meaning</th><th>Where</th></tr>
+  <tr><td><code>SW_APP_URL</code></td><td>https://app.stonewake.ai</td><td>.env / workflow env</td></tr>
+  <tr><td><code>SW_API_URL</code></td><td>https://api.stonewake.ai</td><td>.env / workflow env</td></tr>
+  <tr><td><code>SW_EMAIL</code>, <code>SW_PASSWORD</code></td><td>Finalist 5 dashboard login</td><td>.env (gitignored) / Actions secrets</td></tr>
+  <tr><td><code>SW_API_KEY</code></td><td>Finalist 5 key, viewer, read + reports, valid to 13 Nov 2026</td><td>.env (gitignored) / Actions secrets</td></tr>
+  <tr><td><code>SW_MCP_URL</code></td><td>https://mcp.stonewake.ai/ (bonus only)</td><td>optional</td></tr>
+</table>
+<p class="small">Credentials are intentionally absent from this document. They live in the ITAC logins PDF and in the local <code>.env</code> only.</p>
+
+</main>
+</div>
+</body>
+</html>

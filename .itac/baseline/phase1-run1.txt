@@ -1,0 +1,26 @@
+
+Running 20 tests using 2 workers
+
+  ok  1 tests\api.spec.ts:5:5 › api 1 health (430ms)
+  ok  3 tests\api.spec.ts:16:5 › api 2 me (356ms)
+  ok  4 tests\api.spec.ts:36:5 › api 3 no token (821ms)
+  ok  5 tests\api.spec.ts:54:5 › api 4 bad keys (1.0s)
+  ok  2 tests\ui.spec.ts:6:5 › ui 1 login ok (4.4s)
+  ok  6 tests\api.spec.ts:68:5 › api 5 portfolio list (2.6s)
+  ok  8 tests\api.spec.ts:98:5 › api 6 portfolio summary (696ms)
+  ok  9 tests\api.spec.ts:115:5 › api 7 entities (455ms)
+  ok  7 tests\ui.spec.ts:25:5 › ui 2 wrong password (2.5s)
+  ok 10 tests\api.spec.ts:135:5 › api 8 entity not found (631ms)
+  ok 12 tests\api.spec.ts:151:5 › api 9 countries (939ms)
+  ok 11 tests\ui.spec.ts:37:5 › ui 3 terms checkbox (1.9s)
+  ok 13 tests\api.spec.ts:177:5 › api 10 search (1.3s)
+  ok 14 tests\ui.spec.ts:50:5 › ui 4 not logged in redirect (4.1s)
+  ok 15 tests\ui.spec.ts:66:5 › ui 5 logout (3.9s)
+  ok 16 tests\ui.spec.ts:82:5 › ui 6 sidebar (4.6s)
+  ok 17 tests\ui.spec.ts:115:5 › ui 7 deal book search (5.8s)
+  ok 18 tests\ui.spec.ts:135:5 › ui 8 countries (7.2s)
+  ok 19 tests\ui.spec.ts:158:5 › ui 9 institutions (4.8s)
+  ok 20 tests\ui.spec.ts:178:5 › ui 10 portfolio (4.8s)
+
+  20 passed (46.4s)
+exit=0

@@ -1,0 +1,737 @@
+added 5 packages, and audited 6 packages in 2s
+
+found 0 vulnerabilities
+=== RUN 1 start 17:53:05
+
+Running 20 tests using 2 workers
+
+  x   2 tests\api.spec.ts:5:5 › api 1 health (610ms)
+  x   3 tests\api.spec.ts:16:5 › api 2 me (401ms)
+  ok  4 tests\api.spec.ts:37:5 › api 3 no token (780ms)
+  ok  5 tests\api.spec.ts:55:5 › api 4 bad keys (618ms)
+  x   6 tests\api.spec.ts:69:5 › api 5 portfolio list (428ms)
+  ok  7 tests\api.spec.ts:99:5 › api 6 portfolio summary (548ms)
+  ok  8 tests\api.spec.ts:116:5 › api 7 entities (430ms)
+  ok  9 tests\api.spec.ts:136:5 › api 8 entity not found (655ms)
+  x  10 tests\api.spec.ts:152:5 › api 9 countries (1.9s)
+  x  11 tests\api.spec.ts:177:5 › api 10 search (1.5s)
+  x   1 tests\ui.spec.ts:6:5 › ui 1 login ok (30.2s)
+  ok 12 tests\ui.spec.ts:26:5 › ui 2 wrong password (2.9s)
+  x  13 tests\ui.spec.ts:38:5 › ui 3 terms checkbox (30.3s)
+  ok 14 tests\ui.spec.ts:51:5 › ui 4 not logged in redirect (4.2s)
+  ok 15 tests\ui.spec.ts:67:5 › ui 5 logout (4.0s)
+  x  16 tests\ui.spec.ts:83:5 › ui 6 sidebar (30.5s)
+  x  17 tests\ui.spec.ts:113:5 › ui 7 deal book search (12.6s)
+  ok 18 tests\ui.spec.ts:134:5 › ui 8 countries (7.8s)
+  ok 19 tests\ui.spec.ts:158:5 › ui 9 institutions (5.6s)
+  x  20 tests\ui.spec.ts:178:5 › ui 10 portfolio (13.4s)
+
+
+  1) tests\api.spec.ts:5:5 › api 1 health ──────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+       5 | test('api 1 health', async ({ request }) => {
+       6 |   var r = await request.get('https://api.stonewake.ai/v1/health');
+    >  7 |   expect(r.status()).toBe(200);
+         |                      ^
+       8 |   var b = await r.json();
+       9 |   expect(Object.keys(b).sort()).toEqual(['app', 'environment', 'status', 'version']);
+      10 |   expect(b.status).toBe('ok');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:7:22
+
+    Error Context: test-results\api-api-1-health\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-1-health\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-1-health\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\api.spec.ts:16:5 › api 2 me ─────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+      16 | test('api 2 me', async ({ request }) => {
+      17 |   var r = await request.get('https://api.stonewake.ai/v1/me', { headers: { Authorization: 'Token ' + KEY } });
+    > 18 |   expect(r.status()).toBe(200);
+         |                      ^
+      19 |   var b = await r.json();
+      20 |   console.log(b);
+      21 |   expect(b.credential).toBe('api_key');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:18:22
+
+    Error Context: test-results\api-api-2-me\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-2-me\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-2-me\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\api.spec.ts:69:5 › api 5 portfolio list ─────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      71 |   expect(r.status()).toBe(200);
+      72 |   var b = await r.json();
+    > 73 |   expect(Array.isArray(b.data)).toBe(true);
+         |                                 ^
+      74 |   expect(b.data.length).toBeLessThanOrEqual(2);
+      75 |   expect(b.limit).toBe(2);
+      76 |   expect(b.offset).toBe(0);
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:73:33
+
+    Error Context: test-results\api-api-5-portfolio-list\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-5-portfolio-list\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-5-portfolio-list\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests\api.spec.ts:152:5 › api 9 countries ─────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "GE"
+    Received: "DE"
+
+      166 |   var d = await r2.json();
+      167 |   expect(d.iso3).toBe('DEU');
+    > 168 |   expect(d.iso2).toBe('GE');
+          |                  ^
+      169 |   expect(d.name).toBe('Germany');
+      170 |   expect(d.region).toBe('europe');
+      171 |   expect(d.risk.score).toBeGreaterThanOrEqual(0);
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:168:18
+
+    Error Context: test-results\api-api-9-countries\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-9-countries\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-9-countries\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests\api.spec.ts:177:5 › api 10 search ───────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Input should be less than or equal to 50"
+    Received: "Input should be less than or equal to 25"
+
+      197 |   var r5 = await request.get('https://api.stonewake.ai/v1/search?q=bank&limit=99999', { headers: { Authorization: 'Bearer ' + KEY } });
+      198 |   expect(r5.status()).toBe(422);
+    > 199 |   expect((await r5.json()).detail[0].msg).toBe('Input should be less than or equal to 50');
+          |                                           ^
+      200 | });
+      201 |
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:199:43
+
+    Error Context: test-results\api-api-10-search\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-10-search\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-10-search\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests\ui.spec.ts:6:5 › ui 1 login ok ──────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#email')
+
+
+      10 |   await expect(page).toHaveTitle('Sign in · Stonewake');
+      11 |   await expect(page.locator('//h1[text()="Sign in"]')).toBeVisible();
+    > 12 |   await page.fill('#email', EMAIL);
+         |              ^
+      13 |   await page.fill('input[type="password"]', PASS);
+      14 |   await page.click('button[role="checkbox"]');
+      15 |   await page.click('button[type="submit"]');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:12:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-1-login-ok\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-1-login-ok\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-1-login-ok\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-1-login-ok\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests\ui.spec.ts:38:5 › ui 3 terms checkbox ───────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.check: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> C:\Users\Yuval\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\Yuval\AppData\Local\Temp\playwright_chromiumdev_profile-LpSCoD --remote-debugging-pipe --no-startup-window
+    <launched> pid=14868
+    [pid=14868] <gracefully close start>
+    Call log:
+      - waiting for locator('input[type="checkbox"]')
+        - locator resolved to <input value="on" tabindex="-1" type="checkbox" aria-hidden="true"/>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        54 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      42 |   await page.fill('input[type="password"]', PASS);
+      43 |   await expect(page.locator('button[type="submit"]')).toBeDisabled();
+    > 44 |   await page.check('input[type="checkbox"]');
+         |              ^
+      45 |   await expect(page.locator('button[type="submit"]')).toBeEnabled();
+      46 |   await page.uncheck('input[type="checkbox"]');
+      47 |   await expect(page.locator('button[type="submit"]')).toBeDisabled();
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:44:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-3-terms-checkbox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-3-terms-checkbox\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-3-terms-checkbox\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-3-terms-checkbox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests\ui.spec.ts:83:5 › ui 6 sidebar ──────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('//aside//a[normalize-space(.)="EDD Dossier"]')
+
+
+      103 |   await page.waitForURL('**/screenings');
+      104 |   await expect(page.locator('h1')).toHaveText('Screenings');
+    > 105 |   await page.click('//aside//a[normalize-space(.)="EDD Dossier"]');
+          |              ^
+      106 |   await page.waitForURL('**/dossiers');
+      107 |   await expect(page.locator('h1')).toHaveText('EDD Dossiers');
+      108 |   await page.click('//aside//a[normalize-space(.)="Scoring"]');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:105:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-6-sidebar\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-6-sidebar\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-6-sidebar\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-6-sidebar\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests\ui.spec.ts:113:5 › ui 7 deal book search ────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main a[href^=\'/deal/\']').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('main a[href^=\'/deal/\']').first() with timeout 5000ms
+      - waiting for locator('main a[href^=\'/deal/\']').first()
+
+
+      122 |   await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveText('Deals');
+      123 |   var link = page.locator("main a[href^='/deal/']").first();
+    > 124 |   await expect(link).toBeVisible();
+          |                      ^
+      125 |   var href = await link.getAttribute('href');
+      126 |   await page.fill('input[placeholder="Search deals…"]', 'zzzzqqxx');
+      127 |   await expect(page.locator('text=No matching deals')).toBeVisible();
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:124:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-7-deal-book-search\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-7-deal-book-search\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-7-deal-book-search\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-7-deal-book-search\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests\ui.spec.ts:178:5 › ui 10 portfolio ─────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="tile-not-assessed"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="tile-not-assessed"]') with timeout 5000ms
+      - waiting for locator('[data-testid="tile-not-assessed"]')
+
+
+      189 |   await expect(page.locator('[data-testid="tile-green"]')).toBeVisible();
+      190 |   await expect(page.locator('[data-testid="tile-insufficient"]')).toBeVisible();
+    > 191 |   await expect(page.locator('[data-testid="tile-not-assessed"]')).toBeVisible();
+          |                                                                   ^
+      192 |   var first = page.locator('tbody a[href^="/entities/n"]').first();
+      193 |   await expect(first).toBeVisible();
+      194 |   var name = (await first.innerText()).trim();
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:191:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-10-portfolio\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-10-portfolio\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-10-portfolio\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-10-portfolio\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests\api.spec.ts:5:5 › api 1 health ───────────────────────────────────────────────────────────
+    tests\api.spec.ts:16:5 › api 2 me ──────────────────────────────────────────────────────────────
+    tests\api.spec.ts:69:5 › api 5 portfolio list ──────────────────────────────────────────────────
+    tests\api.spec.ts:152:5 › api 9 countries ──────────────────────────────────────────────────────
+    tests\api.spec.ts:177:5 › api 10 search ────────────────────────────────────────────────────────
+    tests\ui.spec.ts:6:5 › ui 1 login ok ───────────────────────────────────────────────────────────
+    tests\ui.spec.ts:38:5 › ui 3 terms checkbox ────────────────────────────────────────────────────
+    tests\ui.spec.ts:83:5 › ui 6 sidebar ───────────────────────────────────────────────────────────
+    tests\ui.spec.ts:113:5 › ui 7 deal book search ─────────────────────────────────────────────────
+    tests\ui.spec.ts:178:5 › ui 10 portfolio ───────────────────────────────────────────────────────
+  10 passed (2.5m)
+=== RUN 1 end 17:55:37 exit=0
+=== RUN 2 start 17:55:38
+
+Running 20 tests using 2 workers
+
+  x   2 tests\api.spec.ts:5:5 › api 1 health (375ms)
+  x   3 tests\api.spec.ts:16:5 › api 2 me (755ms)
+  ok  4 tests\api.spec.ts:37:5 › api 3 no token (792ms)
+  ok  5 tests\api.spec.ts:55:5 › api 4 bad keys (643ms)
+  x   6 tests\api.spec.ts:69:5 › api 5 portfolio list (449ms)
+  ok  7 tests\api.spec.ts:99:5 › api 6 portfolio summary (560ms)
+  ok  8 tests\api.spec.ts:116:5 › api 7 entities (491ms)
+  ok  9 tests\api.spec.ts:136:5 › api 8 entity not found (649ms)
+  x  10 tests\api.spec.ts:152:5 › api 9 countries (716ms)
+  x  11 tests\api.spec.ts:177:5 › api 10 search (1.0s)
+  x   1 tests\ui.spec.ts:6:5 › ui 1 login ok (30.2s)
+  ok 12 tests\ui.spec.ts:26:5 › ui 2 wrong password (2.3s)
+  x  13 tests\ui.spec.ts:38:5 › ui 3 terms checkbox (30.2s)
+  ok 14 tests\ui.spec.ts:51:5 › ui 4 not logged in redirect (3.1s)
+  ok 15 tests\ui.spec.ts:67:5 › ui 5 logout (3.8s)
+  x  16 tests\ui.spec.ts:83:5 › ui 6 sidebar (30.4s)
+  x  17 tests\ui.spec.ts:113:5 › ui 7 deal book search (11.1s)
+  ok 18 tests\ui.spec.ts:134:5 › ui 8 countries (27.9s)
+  ok 19 tests\ui.spec.ts:158:5 › ui 9 institutions (5.1s)
+  x  20 tests\ui.spec.ts:178:5 › ui 10 portfolio (9.5s)
+
+
+  1) tests\api.spec.ts:5:5 › api 1 health ──────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 404
+
+       5 | test('api 1 health', async ({ request }) => {
+       6 |   var r = await request.get('https://api.stonewake.ai/v1/health');
+    >  7 |   expect(r.status()).toBe(200);
+         |                      ^
+       8 |   var b = await r.json();
+       9 |   expect(Object.keys(b).sort()).toEqual(['app', 'environment', 'status', 'version']);
+      10 |   expect(b.status).toBe('ok');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:7:22
+
+    Error Context: test-results\api-api-1-health\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-1-health\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-1-health\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\api.spec.ts:16:5 › api 2 me ─────────────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 200
+    Received: 401
+
+      16 | test('api 2 me', async ({ request }) => {
+      17 |   var r = await request.get('https://api.stonewake.ai/v1/me', { headers: { Authorization: 'Token ' + KEY } });
+    > 18 |   expect(r.status()).toBe(200);
+         |                      ^
+      19 |   var b = await r.json();
+      20 |   console.log(b);
+      21 |   expect(b.credential).toBe('api_key');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:18:22
+
+    Error Context: test-results\api-api-2-me\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-2-me\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-2-me\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\api.spec.ts:69:5 › api 5 portfolio list ─────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      71 |   expect(r.status()).toBe(200);
+      72 |   var b = await r.json();
+    > 73 |   expect(Array.isArray(b.data)).toBe(true);
+         |                                 ^
+      74 |   expect(b.data.length).toBeLessThanOrEqual(2);
+      75 |   expect(b.limit).toBe(2);
+      76 |   expect(b.offset).toBe(0);
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:73:33
+
+    Error Context: test-results\api-api-5-portfolio-list\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-5-portfolio-list\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-5-portfolio-list\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests\api.spec.ts:152:5 › api 9 countries ─────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "GE"
+    Received: "DE"
+
+      166 |   var d = await r2.json();
+      167 |   expect(d.iso3).toBe('DEU');
+    > 168 |   expect(d.iso2).toBe('GE');
+          |                  ^
+      169 |   expect(d.name).toBe('Germany');
+      170 |   expect(d.region).toBe('europe');
+      171 |   expect(d.risk.score).toBeGreaterThanOrEqual(0);
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:168:18
+
+    Error Context: test-results\api-api-9-countries\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-9-countries\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-9-countries\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests\api.spec.ts:177:5 › api 10 search ───────────────────────────────────────────────────────
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "Input should be less than or equal to 50"
+    Received: "Input should be less than or equal to 25"
+
+      197 |   var r5 = await request.get('https://api.stonewake.ai/v1/search?q=bank&limit=99999', { headers: { Authorization: 'Bearer ' + KEY } });
+      198 |   expect(r5.status()).toBe(422);
+    > 199 |   expect((await r5.json()).detail[0].msg).toBe('Input should be less than or equal to 50');
+          |                                           ^
+      200 | });
+      201 |
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\api.spec.ts:199:43
+
+    Error Context: test-results\api-api-10-search\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\api-api-10-search\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\api-api-10-search\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests\ui.spec.ts:6:5 › ui 1 login ok ──────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#email')
+
+
+      10 |   await expect(page).toHaveTitle('Sign in · Stonewake');
+      11 |   await expect(page.locator('//h1[text()="Sign in"]')).toBeVisible();
+    > 12 |   await page.fill('#email', EMAIL);
+         |              ^
+      13 |   await page.fill('input[type="password"]', PASS);
+      14 |   await page.click('button[role="checkbox"]');
+      15 |   await page.click('button[type="submit"]');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:12:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-1-login-ok\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-1-login-ok\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-1-login-ok\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-1-login-ok\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests\ui.spec.ts:38:5 › ui 3 terms checkbox ───────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.check: Test timeout of 30000ms exceeded.
+    Browser logs:
+
+    <launching> C:\Users\Yuval\AppData\Local\ms-playwright\chromium_headless_shell-1248\chrome-headless-shell-win64\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\Users\Yuval\AppData\Local\Temp\playwright_chromiumdev_profile-HiFTlW --remote-debugging-pipe --no-startup-window
+    <launched> pid=25140
+    [pid=25140] <gracefully close start>
+    Call log:
+      - waiting for locator('input[type="checkbox"]')
+        - locator resolved to <input value="on" tabindex="-1" type="checkbox" aria-hidden="true"/>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+        - retrying click action
+          - waiting 100ms
+        55 × waiting for element to be visible, enabled and stable
+           - element is visible, enabled and stable
+           - scrolling into view if needed
+           - done scrolling
+           - <div class="flex min-h-dvh items-center justify-center px-6">…</div> intercepts pointer events
+         - retrying click action
+           - waiting 500ms
+        - waiting for element to be visible, enabled and stable
+
+
+      42 |   await page.fill('input[type="password"]', PASS);
+      43 |   await expect(page.locator('button[type="submit"]')).toBeDisabled();
+    > 44 |   await page.check('input[type="checkbox"]');
+         |              ^
+      45 |   await expect(page.locator('button[type="submit"]')).toBeEnabled();
+      46 |   await page.uncheck('input[type="checkbox"]');
+      47 |   await expect(page.locator('button[type="submit"]')).toBeDisabled();
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:44:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-3-terms-checkbox\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-3-terms-checkbox\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-3-terms-checkbox\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-3-terms-checkbox\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests\ui.spec.ts:83:5 › ui 6 sidebar ──────────────────────────────────────────────────────────
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('//aside//a[normalize-space(.)="EDD Dossier"]')
+
+
+      103 |   await page.waitForURL('**/screenings');
+      104 |   await expect(page.locator('h1')).toHaveText('Screenings');
+    > 105 |   await page.click('//aside//a[normalize-space(.)="EDD Dossier"]');
+          |              ^
+      106 |   await page.waitForURL('**/dossiers');
+      107 |   await expect(page.locator('h1')).toHaveText('EDD Dossiers');
+      108 |   await page.click('//aside//a[normalize-space(.)="Scoring"]');
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:105:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-6-sidebar\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-6-sidebar\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-6-sidebar\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-6-sidebar\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests\ui.spec.ts:113:5 › ui 7 deal book search ────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('main a[href^=\'/deal/\']').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('main a[href^=\'/deal/\']').first() with timeout 5000ms
+      - waiting for locator('main a[href^=\'/deal/\']').first()
+
+
+      122 |   await expect(page.locator('[role="tab"][aria-selected="true"]')).toHaveText('Deals');
+      123 |   var link = page.locator("main a[href^='/deal/']").first();
+    > 124 |   await expect(link).toBeVisible();
+          |                      ^
+      125 |   var href = await link.getAttribute('href');
+      126 |   await page.fill('input[placeholder="Search deals…"]', 'zzzzqqxx');
+      127 |   await expect(page.locator('text=No matching deals')).toBeVisible();
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:124:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-7-deal-book-search\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-7-deal-book-search\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-7-deal-book-search\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-7-deal-book-search\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests\ui.spec.ts:178:5 › ui 10 portfolio ─────────────────────────────────────────────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-testid="tile-not-assessed"]')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" locator('[data-testid="tile-not-assessed"]') with timeout 5000ms
+      - waiting for locator('[data-testid="tile-not-assessed"]')
+
+
+      189 |   await expect(page.locator('[data-testid="tile-green"]')).toBeVisible();
+      190 |   await expect(page.locator('[data-testid="tile-insufficient"]')).toBeVisible();
+    > 191 |   await expect(page.locator('[data-testid="tile-not-assessed"]')).toBeVisible();
+          |                                                                   ^
+      192 |   var first = page.locator('tbody a[href^="/entities/n"]').first();
+      193 |   await expect(first).toBeVisible();
+      194 |   var name = (await first.innerText()).trim();
+        at C:\Users\Yuval\Desktop\itac-finals\stonewake-final-repo\tests\ui.spec.ts:191:67
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\ui-ui-10-portfolio\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\ui-ui-10-portfolio\error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\ui-ui-10-portfolio\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\ui-ui-10-portfolio\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10 failed
+    tests\api.spec.ts:5:5 › api 1 health ───────────────────────────────────────────────────────────
+    tests\api.spec.ts:16:5 › api 2 me ──────────────────────────────────────────────────────────────
+    tests\api.spec.ts:69:5 › api 5 portfolio list ──────────────────────────────────────────────────
+    tests\api.spec.ts:152:5 › api 9 countries ──────────────────────────────────────────────────────
+    tests\api.spec.ts:177:5 › api 10 search ────────────────────────────────────────────────────────
+    tests\ui.spec.ts:6:5 › ui 1 login ok ───────────────────────────────────────────────────────────
+    tests\ui.spec.ts:38:5 › ui 3 terms checkbox ────────────────────────────────────────────────────
+    tests\ui.spec.ts:83:5 › ui 6 sidebar ───────────────────────────────────────────────────────────
+    tests\ui.spec.ts:113:5 › ui 7 deal book search ─────────────────────────────────────────────────
+    tests\ui.spec.ts:178:5 › ui 10 portfolio ───────────────────────────────────────────────────────
+  10 passed (2.7m)
+=== RUN 2 end 17:58:21
